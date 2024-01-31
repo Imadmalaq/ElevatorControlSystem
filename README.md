@@ -3,9 +3,9 @@ Right now the `Floor`  reads the `input.txt` file then passes the information as
 Floor --> Scheduler --> Elevator --> Scheduler --> Floor
 
 ### TODO 
-Edit the code to work in a loop to read multiple lines. 
-Add test case
-Add UML
+Edit the code to work in a loop to read multiple lines<br>
+Add test case<br>
+Add UML<br>
 
 ### Usage
 Run the `MainSystem.java` file
