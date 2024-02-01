@@ -14,14 +14,25 @@ public class Floor implements Runnable{
     /**
      * Reads the input File and sets the currentDataPacket
      */
-    public void readInputFile () {
+    public void readInputFile() {
         try {
             File myObj = new File("input.txt");
             Scanner myReader = new Scanner(myObj);
-            DataPacket dataPacket = null;
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
-                currentDataPacket = processInputData(data);
+                // Process the data immediately upon reading
+                DataPacket dataPacket = processInputData(data);
+                if (dataPacket != null) {
+                    // Send and process the data packet immediately
+                    sendDataToScheduler(dataPacket);
+                    receiveDataFromScheduler();
+                    // Optional: Wait between processing each line
+                    try {
+                        Thread.sleep(1000); // Wait for 1 second
+                    } catch (InterruptedException e) {
+                        System.out.println("Thread interrupted: " + e.getMessage());
+                    }
+                }
             }
             myReader.close();
         } catch (FileNotFoundException e) {
