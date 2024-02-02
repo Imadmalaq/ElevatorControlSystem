@@ -5,7 +5,6 @@ import java.util.Scanner;
 public class Floor implements Runnable{
 
     private final MainSystem mainSystem;
-    private DataPacket currentDataPacket;
 
     public Floor(MainSystem mainSystem) {
         this.mainSystem = mainSystem;
@@ -24,14 +23,7 @@ public class Floor implements Runnable{
                 DataPacket dataPacket = processInputData(data);
                 if (dataPacket != null) {
                     // Send and process the data packet immediately
-                    sendDataToScheduler(dataPacket);
-                    receiveDataFromScheduler();
-                    // Optional: Wait between processing each line
-                    try {
-                        Thread.sleep(1000); // Wait for 1 second
-                    } catch (InterruptedException e) {
-                        System.out.println("Thread interrupted: " + e.getMessage());
-                    }
+                    handleDataPacket(dataPacket);
                 }
             }
             myReader.close();
@@ -74,21 +66,23 @@ public class Floor implements Runnable{
      * Receives the data from the scheduler and sets the currentDataPacket
      */
     public void receiveDataFromScheduler(){
-        currentDataPacket = mainSystem.getSchedulerAndFloorData();
-        System.out.println("Floor received: " + currentDataPacket.getTime() + " " + currentDataPacket.getFloor() + " " + currentDataPacket.getDirection() + " " + currentDataPacket.getCarButton());
+        DataPacket data = mainSystem.getSchedulerAndFloorData();
+        System.out.println("Floor received: " + data.getTime() + " " + data.getFloor() + " " + data.getDirection() + " " + data.getCarButton()+"\n\n");
+    }
+
+    public void handleDataPacket(DataPacket dataPacket) {
+        sendDataToScheduler(dataPacket);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            System.out.println("Thread interrupted: " + e.getMessage());
+        }
+        receiveDataFromScheduler();
     }
 
     @Override
     public void run() {
         readInputFile();
-        if (currentDataPacket != null){
-            sendDataToScheduler(currentDataPacket);
-            try{
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                System.out.print(e);
-            }
-            receiveDataFromScheduler();
-        }
+        System.exit(0);
     }
 }
