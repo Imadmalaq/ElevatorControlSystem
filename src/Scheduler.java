@@ -22,7 +22,7 @@ public class Scheduler implements Runnable {
         System.out.println("Sending Data to elevator from scheduler: " + currentDataPacket.getTime() + " " + currentDataPacket.getFloor() + " " + currentDataPacket.getDirection() + " " + currentDataPacket.getCarButton());
         mainSystem.updateSchedulerAndElevatorData(currentDataPacket);
         try {
-            Thread.sleep(500);
+            Thread.sleep(750);
         } catch (InterruptedException e) {
             System.out.println("Thread interrupted: " + e.getMessage());
         }
@@ -43,7 +43,7 @@ public class Scheduler implements Runnable {
         System.out.println("Sending Data to floor from scheduler: " + currentDataPacket.getTime() + " " + currentDataPacket.getFloor() + " " + currentDataPacket.getDirection() + " " + currentDataPacket.getCarButton());
         mainSystem.updateSchedulerAndFloorData(currentDataPacket);
         try {
-            Thread.sleep(500);
+            Thread.sleep(750);
         } catch (InterruptedException e) {
             System.out.println("Thread interrupted: " + e.getMessage());
         }
