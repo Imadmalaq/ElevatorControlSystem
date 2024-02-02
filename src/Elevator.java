@@ -11,6 +11,7 @@ public class Elevator implements Runnable {
      * Gets the data from the scheduler and sets the currentDataPacket
      */
     public void getDataFromScheduler(){
+
         currentDataPacket = mainSystem.getSchedulerAndElevatorData();
         System.out.println("Elevator received: " + currentDataPacket.getTime() + " " + currentDataPacket.getFloor() + " " + currentDataPacket.getDirection() + " " + currentDataPacket.getCarButton());
     }
@@ -20,14 +21,22 @@ public class Elevator implements Runnable {
      * @param packet - DataPacket object
      */
     public void sendDataToScheduler(DataPacket packet){
-        mainSystem.updateSchedulerAndElevatorData(packet);
         System.out.println("Sending Data to scheduler from elevator: " + packet.getTime() + " " + packet.getFloor() + " " + packet.getDirection() + " " + packet.getCarButton());
+        mainSystem.updateSchedulerAndElevatorData(packet);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            System.out.println("Thread interrupted: " + e.getMessage());
+        }
     }
 
     @Override
     public void run() {
-        getDataFromScheduler();
-        sendDataToScheduler(currentDataPacket);
+        while(true){
+            getDataFromScheduler();
+            sendDataToScheduler(currentDataPacket);
+
+        }
 
     }
 }

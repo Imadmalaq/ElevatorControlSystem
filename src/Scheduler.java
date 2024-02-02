@@ -19,8 +19,13 @@ public class Scheduler implements Runnable {
      * Sends the data to the elevator
      */
     public void sendDataToElevator (){
-        mainSystem.updateSchedulerAndElevatorData(currentDataPacket);
         System.out.println("Sending Data to elevator from scheduler: " + currentDataPacket.getTime() + " " + currentDataPacket.getFloor() + " " + currentDataPacket.getDirection() + " " + currentDataPacket.getCarButton());
+        mainSystem.updateSchedulerAndElevatorData(currentDataPacket);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            System.out.println("Thread interrupted: " + e.getMessage());
+        }
     }
 
     /**
@@ -35,15 +40,22 @@ public class Scheduler implements Runnable {
      * Sends the data to the floor
      */
     public void sendDataToFloor(){
-        mainSystem.updateSchedulerAndFloorData(currentDataPacket);
         System.out.println("Sending Data to floor from scheduler: " + currentDataPacket.getTime() + " " + currentDataPacket.getFloor() + " " + currentDataPacket.getDirection() + " " + currentDataPacket.getCarButton());
+        mainSystem.updateSchedulerAndFloorData(currentDataPacket);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            System.out.println("Thread interrupted: " + e.getMessage());
+        }
     }
 
     @Override
     public void run() {
-        getDataFromFloor();
-        sendDataToElevator();
-        getDataFromElevator();
-        sendDataToFloor();
+        while(true){
+            getDataFromFloor();
+            sendDataToElevator();
+            getDataFromElevator();
+            sendDataToFloor();
+        }
     }
 }
