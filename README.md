@@ -52,11 +52,11 @@ This project was created by 5 authors:
 - Kyle Taticek
 
 ## Breakdown of Work
-Kieran Rourke: implemented the base functionality for the Elevator, DataPacket, Scheduler
-Mowgli: implemented the functionality for the Floor and helped with the other classes
-Kyle: implemented the functionality for the MainSystem and helped with the other classes
-Humam: Testing work
-Michael: UML Diagrams
+Kieran Rourke: implemented the base functionality for the Elevator, DataPacket, Scheduler<br>
+Mowgli: implemented the functionality for the Floor and helped with the other classes<br>
+Kyle: implemented the functionality for the MainSystem and helped with the other classes<br>
+Humam: Testing work<br>
+Michael: UML Diagrams<br>
 
 
 ## Future Iterations
