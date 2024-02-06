@@ -48,7 +48,20 @@ public class Scheduler implements Runnable {
             System.out.println("Thread interrupted: " + e.getMessage());
         }
     }
-
+    /**
+     * Gets the current data packet that the scheduler is working on.
+     * @return the current DataPacket
+     */
+    public DataPacket getCurrentDataPacket() {
+        return currentDataPacket;
+    }
+    /**
+     * Sets the current data packet that the scheduler will work on.
+     * @param dataPacket the DataPacket to be set
+     */
+    public void setDataPacket(DataPacket dataPacket) {
+        this.currentDataPacket = dataPacket;
+    }
     @Override
     public void run() {
         while(true){
