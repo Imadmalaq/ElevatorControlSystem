@@ -125,7 +125,7 @@ public class Scheduler implements Runnable {
             simulateDelay(750);
         }
     }
-     */
+
     public void getDataFromElevator() {
         currentDataPacket = mainSystem.getSchedulerAndElevatorData();
         System.out.println("Scheduler: received that elevator reached floor " + currentFloor);
@@ -146,7 +146,7 @@ public class Scheduler implements Runnable {
             System.out.println("Thread interrupted: " + e.getMessage());
         }
     }
-
+     */
 
     @Override
     public void run() {
