@@ -50,7 +50,7 @@ public class Floor implements Runnable{
         String direction = parts[2];
         String carButton = parts[3];
 
-       return new DataPacket(time, floor, direction, carButton);
+        return new DataPacket(time, floor, direction, carButton);
     }
 
     /**
