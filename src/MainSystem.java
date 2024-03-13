@@ -80,6 +80,7 @@ public class MainSystem {
         Thread elevator = new Thread(new Elevator(mainSystem), "Elevator");
         Thread scheduler = new Thread(new Scheduler(mainSystem), "Scheduler");
 
+
         floor.start();
         scheduler.start();
         elevator.start();

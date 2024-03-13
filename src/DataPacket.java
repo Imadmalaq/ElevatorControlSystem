@@ -1,4 +1,6 @@
-public class DataPacket {
+import java.io.Serializable;
+
+public class DataPacket implements Serializable {
     private final String time;
     private final String floor;
     private final String direction;
