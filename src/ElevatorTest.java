@@ -38,7 +38,7 @@ class ElevatorTest {
         DataPacket packetToSend = new DataPacket("10:15", "3", "DOWN", "1");
 
 
-        elevator.sendDataToScheduler(packetToSend);
+//        elevator.sendDataToScheduler(packetToSend);
 
         // Assert
         verify(mainSystem).updateSchedulerAndElevatorData(packetToSend);

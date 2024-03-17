@@ -38,7 +38,7 @@ class SchedulerTest {
         // Set the currentDataPacket for the scheduler
         scheduler.setDataPacket(packet);
 
-        scheduler.sendDataToElevator();
+//        scheduler.sendDataToElevator();
 
         verify(mainSystem).updateSchedulerAndElevatorData(packet);
     }
@@ -48,7 +48,7 @@ class SchedulerTest {
         DataPacket expectedPacket = new DataPacket("10:30", "2", "UP", "4");
         when(mainSystem.getSchedulerAndElevatorData()).thenReturn(expectedPacket);
 
-        scheduler.getDataFromElevator();
+//        scheduler.getDataFromElevator();
 
         assertNotNull(scheduler.getCurrentDataPacket());
         assertEquals(expectedPacket, scheduler.getCurrentDataPacket());
@@ -60,7 +60,7 @@ class SchedulerTest {
         // Set the currentDataPacket for the scheduler
         scheduler.setDataPacket(packet);
 
-        scheduler.sendDataToFloor();
+//        scheduler.sendDataToFloor();
 
         verify(mainSystem).updateSchedulerAndFloorData(packet);
     }

@@ -45,23 +45,30 @@ public class Elevator implements Runnable {
      */
     public void getDataFromScheduler() {
         try {
-            // Create a DatagramSocket to listen on a specific port
-            DatagramSocket socket = new DatagramSocket(Elevator_Port_Number); // Need to choose an actual port number
 
             // Prepare a buffer to store incoming data
-            byte[] buffer = new byte[1024]; // Adjust size as necessary
+            byte[] sendBuffer = new byte[MainSystem.buffer_size]; // Adjust size as necessary
+            byte[] returnBuffer = new byte[MainSystem.buffer_size]; // Adjust size as necessary
 
             // Create a DatagramPacket for receiving data
-            DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
 
-            // Receive the packet
-            socket.receive(receivePacket);
+            sendBuffer = "Get Request Elevator".getBytes();
 
-            // Close the socket
-            socket.close();
+            DatagramPacket request = new DatagramPacket(sendBuffer, sendBuffer.length, MainSystem.address, MainSystem.Scheduler_Elevator_Port_Number);
+            DatagramPacket response = new DatagramPacket(returnBuffer, returnBuffer.length, MainSystem.address, MainSystem.Elevator_Port_Number);
+            MainSystem.rpc_send(request, response);
+            MainSystem.printReceivePacketData(response);
 
+            MainSystem.sendAcknowledgment(response);
+
+
+            DataPacket receivedData;
             // Deserialize the data from the received packet into a DataPacket object
-            DataPacket receivedData = deserializeDataPacket(receivePacket.getData());
+            if (Floor.isValidDataPacket(new String(response.getData(),0, response.getLength()))) {
+                receivedData = Floor.processStringIntoDataPacket(new String(response.getData(),0, response.getLength()));
+            } else {
+                return;
+            }
 
             // Process the received DataPacket
             if (receivedData != null) {
@@ -75,124 +82,44 @@ public class Elevator implements Runnable {
         }
     }
 
-    public void sendDataToScheduler(DataPacket packet) {
+    public void sendDataToScheduler(String data) {
         try {
             // Serialize the DataPacket object into a byte array - Need some adjustments
-            byte[] dataToSend = serializeDataPacket(packet);
+            byte[] dataToSend = data.getBytes();
 
             // Specify the IP address and port of the Scheduler
-            InetAddress schedulerAddress = InetAddress.getByName("Scheduler_IP_Address");
-            int schedulerPort = Scheduler_Port_Number; // Need to choose an actual port number
+//            InetAddress schedulerAddress = InetAddress.getByName("Scheduler_IP_Address");
+            int schedulerPort = MainSystem.Scheduler_Elevator_Port_Number; // Need to choose an actual port number
 
             // Create a DatagramPacket for sending data
-            DatagramPacket sendPacket = new DatagramPacket(dataToSend, dataToSend.length, schedulerAddress, schedulerPort);
+            DatagramPacket sendPacket = new DatagramPacket(dataToSend, dataToSend.length, MainSystem.address, schedulerPort);
 
             // Create a DatagramSocket for sending the packet
             DatagramSocket socket = new DatagramSocket();
             socket.send(sendPacket);
+            MainSystem.waitForAck(socket);
             socket.close();
 
-            System.out.println("Data sent to Scheduler from Elevator.");
         } catch (Exception e) {
             System.out.println("Exception in sendDataToScheduler: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    public byte[] serializeDataPacket(DataPacket packet) {
-        try {
-            // Create a ByteArrayOutputStream
-            ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
-            // Create an ObjectOutputStream from the ByteArrayOutputStream
-            ObjectOutputStream objStream = new ObjectOutputStream(byteStream);
-
-            // Write the object to the stream
-            objStream.writeObject(packet);
-
-            // Flush and close the stream
-            objStream.flush();
-            objStream.close();
-
-            // Convert the ByteArrayOutputStream into a byte array
-            byte[] serializedData = byteStream.toByteArray();
-
-            return serializedData;
-        } catch (Exception e) {
-            System.out.println("Exception in serializeDataPacket: " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    //Deserializes a byte array back into a DataPacket object.
-    public DataPacket deserializeDataPacket(byte[] data) {
-        try {
-            // Create a ByteArrayInputStream using the data
-            ByteArrayInputStream byteStream = new ByteArrayInputStream(data);
-
-            // Create an ObjectInputStream from the ByteArrayInputStream
-            ObjectInputStream objStream = new ObjectInputStream(byteStream);
-
-            // Read the object from the ObjectInputStream and cast it to DataPacket
-            DataPacket packet = (DataPacket) objStream.readObject();
-
-            // Close the streams
-            objStream.close();
-            byteStream.close();
-
-            return packet;
-        } catch (Exception e) {
-            System.out.println("Exception in deserializeDataPacket: " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /* OLD CODE FOR GETTING DATA AND SENDING DATA
-
-    public void getDataFromScheduler() {
-        currentDataPacket = mainSystem.getSchedulerAndElevatorData();
-        if (currentDataPacket != null) {
-            this.initialFloor = Integer.parseInt(currentDataPacket.getFloor());
-            this.currentFloor = initialFloor;
-            this.targetFloor = Integer.parseInt(currentDataPacket.getCarButton());
-            this.direction = currentDataPacket.getDirection();
-            System.out.println("Elevator received: " + currentDataPacket.getTime() + " " + currentDataPacket.getFloor() + " " + currentDataPacket.getDirection() + " " + currentDataPacket.getCarButton());
-            if (!testModeEnabled) {
-                // In test mode, do not automatically transition states
-                this.currentState = ElevatorState.MOVING;
-            }
-        }
-    }
-    public void sendDataToScheduler(DataPacket packet) {
-        mainSystem.updateSchedulerAndElevatorData(packet);
-        try {
-            if (!testModeEnabled) {
-                Thread.sleep(1000); // Simulate delay
-            }
-        } catch (InterruptedException e) {
-            System.out.println("Thread interrupted: " + e.getMessage());
-        }
-        if (testModeEnabled && this.currentFloor == this.targetFloor) {
-            // In test mode, simulate transition to IDLE after sending data if target floor is reached
-            this.currentState = ElevatorState.IDLE;
-        }
-    }
-     */
 
     /**
      * Notifies the scheduler that the elevator has reached a specific floor.
      */
     public void notifySchedulerFloorReached() {
-        System.out.println("Elevator arrived at floor "+ currentFloor + ", notifying scheduler ");
+        System.out.println("Elevator arrived at floor "+ currentFloor + ", notifying scheduler \n");
         DataPacket notificationPacket = new DataPacket(
                 Long.toString(System.currentTimeMillis()), // Use current time as timestamp
                 Integer.toString(currentFloor),
                 direction,
-                Integer.toString(currentFloor)); // Use currentFloor for both floor and carButton as a simple notification
+                Integer.toString(targetFloor)); // Use currentFloor for both floor and carButton as a simple notification
 
-        sendDataToScheduler(notificationPacket);
+        sendDataToScheduler(notificationPacket.toString());
     }
 
 
@@ -211,6 +138,9 @@ public class Elevator implements Runnable {
                     if (currentDataPacket != null) {
                         //If there is a request, move to the floor. We change to the moving state
                         System.out.println("Moving to floor: " + currentDataPacket.getFloor());
+                        targetFloor = Integer.parseInt(currentDataPacket.getCarButton());
+                        initialFloor = Integer.parseInt(currentDataPacket.getFloor());
+                        direction = currentDataPacket.getDirection();
                         currentState = ElevatorState.MOVING;
                     }
                     break;
@@ -251,9 +181,14 @@ public class Elevator implements Runnable {
                     // the scheduler, here we would also have a method to notify the scheduler but it's not implemented yet
                     if(currentFloor == targetFloor){
                         // Simulating the elevator being idle
-                        System.out.println("Elevator is now idle, notifying the scheduler");
+                        System.out.println("Elevator is now idle, notifying the scheduler\n");
                         //The below method will end our threads since the elevator is sending back the data
-                        sendDataToScheduler(currentDataPacket);
+                        sendDataToScheduler("Elevator is now idle");
+                        try {
+                            Thread.sleep(1300);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                         currentState = ElevatorState.IDLE;
                     }else{
                         //This handles if the direction is up or down
