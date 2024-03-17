@@ -22,9 +22,10 @@ class FloorTest {
 
     @BeforeEach
     void setUp() {
-        floor = new Floor(); // Floor's constructor might need adjusting depending on your setup.
+        floor = new Floor();
     }
 
+    //testing valid input is processed correctly using a mock text
     @Test
     void processInputData_ValidInput() {
         String inputData = "10:00 5 UP 3";
@@ -39,6 +40,7 @@ class FloorTest {
         assertEquals(expected.getCarButton(), result.getCarButton());
     }
 
+    //testing invalid input is processed correctly
     @Test
     void processInputData_InvalidInput() {
         String inputData = "Invalid data";
@@ -46,6 +48,7 @@ class FloorTest {
         assertNull(result);
     }
 
+    //testing valid input
     @Test
     void handleDataPacket_ValidData() {
         String inputData = "10:00 5 UP 3";

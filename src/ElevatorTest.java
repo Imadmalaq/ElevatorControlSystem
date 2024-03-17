@@ -17,8 +17,9 @@ class ElevatorTest {
         assertEquals(Elevator.ElevatorState.IDLE, elevator.getCurrentState(), "Elevator should start in IDLE state.");
     }
 
+    //Testing the movement of the elevator
     @Test
-    void testMoveElevatorToTargetFloor() {
+    void testMoveElevator() {
 
         elevator.setCurrentFloor(2);
         elevator.setTargetFloor(5);
@@ -29,6 +30,7 @@ class ElevatorTest {
         assertEquals(Elevator.ElevatorState.MOVING, elevator.getCurrentState(), "Elevator should enter NOTIFY_SCHEDULER state after reaching the target floor.");
     }
 
+    //testing that the elevator can handle datapackets
     @Test
     void testHandleDataPacket() {
         DataPacket requestPacket = new DataPacket("12:00", "2", "Up", "5");
