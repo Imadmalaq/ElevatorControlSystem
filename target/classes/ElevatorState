@@ -1,0 +1,8 @@
+public enum ElevatorState {
+
+    IDLE,
+    MOVING,
+    NOTIFY_SCHEDULER,
+    DOOR_OPENING,
+    DOOR_CLOSING,
+}

@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.util.Objects;
 
 public class DataPacket implements Serializable {
     private final String time;
@@ -32,4 +33,21 @@ public class DataPacket implements Serializable {
     public String toString() {
         return time + " " + floor + " " + direction + " " + carButton;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DataPacket that = (DataPacket) o;
+        return Objects.equals(time, that.time) &&
+                Objects.equals(floor, that.floor) &&
+                Objects.equals(direction, that.direction) &&
+                Objects.equals(carButton, that.carButton);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(time, floor, direction, carButton);
+    }
 }
+

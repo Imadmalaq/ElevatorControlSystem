@@ -1,8 +1,12 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.net.DatagramSocket;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -11,13 +15,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class FloorTest {
 
     @Mock
-    private MainSystem mainSystem; // Mock the MainSystem
+    private DatagramSocket mockSocket;
 
+    @InjectMocks
     private Floor floor;
 
     @BeforeEach
     void setUp() {
-        floor = new Floor();
+        floor = new Floor(); // Floor's constructor might need adjusting depending on your setup.
     }
 
     @Test
@@ -38,26 +43,15 @@ class FloorTest {
     void processInputData_InvalidInput() {
         String inputData = "Invalid data";
         DataPacket result = Floor.processStringIntoDataPacket(inputData);
-
         assertNull(result);
     }
 
-//    @Test
-//    void sendDataToScheduler() {
-//        DataPacket packet = new DataPacket("10:00", "5", "UP", "3");
-//
-//        floor.sendDataToScheduler(packet);
-//
-//        verify(mainSystem).updateSchedulerAndFloorData(packet);
-//    }
+    @Test
+    void handleDataPacket_ValidData() {
+        String inputData = "10:00 5 UP 3";
+        DataPacket expected = new DataPacket("10:00", "5", "UP", "3");
+        DataPacket result = Floor.processStringIntoDataPacket(inputData);
+        assertEquals(expected,result);
+    }
 
-//    @Test
-//    void receiveDataFromScheduler() {
-//        DataPacket expectedPacket = new DataPacket("10:00", "5", "UP", "3");
-//        when(mainSystem.getSchedulerAndFloorData()).thenReturn(expectedPacket);
-//
-//        floor.receiveDataFromScheduler();
-//
-//        verify(mainSystem).getSchedulerAndFloorData();
-//    }
 }
