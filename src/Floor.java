@@ -10,10 +10,8 @@ import java.util.Scanner;
 
 public class Floor implements Runnable{
 
-    private final MainSystem mainSystem;
 
-    public Floor(MainSystem mainSystem) {
-        this.mainSystem = mainSystem;
+    public Floor() {
     }
 
     /**
@@ -68,14 +66,6 @@ public class Floor implements Runnable{
             return false;
         }
         return parts.length == 4;
-    }
-
-    /**
-     * Receives the data from the scheduler and sets the currentDataPacket
-     */
-    public void receiveDataFromScheduler(){
-        DataPacket data = mainSystem.getSchedulerAndFloorData();
-        System.out.println("Floor received: " + data.getTime() + " " + data.getFloor() + " " + data.getDirection() + " " + data.getCarButton()+"\n\n");
     }
 
     public void handleDataPacket(DataPacket dataPacket) {

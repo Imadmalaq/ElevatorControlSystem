@@ -8,7 +8,6 @@ import java.io.ObjectOutputStream;
 
 public class Elevator implements Runnable {
 
-    private final MainSystem mainSystem;
     private DataPacket currentDataPacket;
     private ElevatorState currentState;
 
@@ -23,8 +22,7 @@ public class Elevator implements Runnable {
         IDLE, MOVING, NOTIFY_SCHEDULER, DOOR_OPENING, DOOR_CLOSING
     }
 
-    public Elevator(MainSystem mainSystem) {
-        this.mainSystem = mainSystem;
+    public Elevator() {
         this.currentState = ElevatorState.IDLE;
     }
 

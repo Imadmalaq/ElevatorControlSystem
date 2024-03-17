@@ -8,7 +8,6 @@ import java.util.Objects;
 
 public class Scheduler implements Runnable {
 
-    private final MainSystem mainSystem;
     private DataPacket currentDataPacket; // This is the data packet that the scheduler is currently working on
 
     private SchedulerState currentState;
@@ -26,8 +25,7 @@ public class Scheduler implements Runnable {
         WAITING_FOR_REQUEST, FLOOR_REQUEST_RECEIVED, SENDING_REQUEST_TO_ELEVATOR, WAITING_FOR_ELEVATOR_RESPONSE, PROCESSING_ELEVATOR_RESPONSE
     }
 
-    public Scheduler(MainSystem mainSystem) {
-        this.mainSystem = mainSystem;
+    public Scheduler() {
         this.currentState = SchedulerState.WAITING_FOR_REQUEST;
     }
 

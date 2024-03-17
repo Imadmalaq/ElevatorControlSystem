@@ -17,7 +17,7 @@ class FloorTest {
 
     @BeforeEach
     void setUp() {
-        floor = new Floor(mainSystem);
+        floor = new Floor();
     }
 
     @Test
@@ -51,13 +51,13 @@ class FloorTest {
 //        verify(mainSystem).updateSchedulerAndFloorData(packet);
 //    }
 
-    @Test
-    void receiveDataFromScheduler() {
-        DataPacket expectedPacket = new DataPacket("10:00", "5", "UP", "3");
-        when(mainSystem.getSchedulerAndFloorData()).thenReturn(expectedPacket);
-
-        floor.receiveDataFromScheduler();
-
-        verify(mainSystem).getSchedulerAndFloorData();
-    }
+//    @Test
+//    void receiveDataFromScheduler() {
+//        DataPacket expectedPacket = new DataPacket("10:00", "5", "UP", "3");
+//        when(mainSystem.getSchedulerAndFloorData()).thenReturn(expectedPacket);
+//
+//        floor.receiveDataFromScheduler();
+//
+//        verify(mainSystem).getSchedulerAndFloorData();
+//    }
 }
