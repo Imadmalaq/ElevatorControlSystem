@@ -1,8 +1,12 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.net.DatagramSocket;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -11,8 +15,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class FloorTest {
 
     @Mock
-    private MainSystem mainSystem; // Mock the MainSystem
+    private DatagramSocket mockSocket;
 
+    @InjectMocks
     private Floor floor;
 
     @BeforeEach
@@ -20,6 +25,7 @@ class FloorTest {
         floor = new Floor();
     }
 
+    //testing valid input is processed correctly using a mock text
     @Test
     void processInputData_ValidInput() {
         String inputData = "10:00 5 UP 3";
@@ -34,30 +40,21 @@ class FloorTest {
         assertEquals(expected.getCarButton(), result.getCarButton());
     }
 
+    //testing invalid input is processed correctly
     @Test
     void processInputData_InvalidInput() {
         String inputData = "Invalid data";
         DataPacket result = Floor.processStringIntoDataPacket(inputData);
-
         assertNull(result);
     }
 
-//    @Test
-//    void sendDataToScheduler() {
-//        DataPacket packet = new DataPacket("10:00", "5", "UP", "3");
-//
-//        floor.sendDataToScheduler(packet);
-//
-//        verify(mainSystem).updateSchedulerAndFloorData(packet);
-//    }
+    //testing valid input
+    @Test
+    void handleDataPacket_ValidData() {
+        String inputData = "10:00 5 UP 3";
+        DataPacket expected = new DataPacket("10:00", "5", "UP", "3");
+        DataPacket result = Floor.processStringIntoDataPacket(inputData);
+        assertEquals(expected,result);
+    }
 
-//    @Test
-//    void receiveDataFromScheduler() {
-//        DataPacket expectedPacket = new DataPacket("10:00", "5", "UP", "3");
-//        when(mainSystem.getSchedulerAndFloorData()).thenReturn(expectedPacket);
-//
-//        floor.receiveDataFromScheduler();
-//
-//        verify(mainSystem).getSchedulerAndFloorData();
-//    }
 }

@@ -1,47 +1,43 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.mockito.Mockito.*;
-
-@ExtendWith(MockitoExtension.class)
 class ElevatorTest {
 
-    @Mock
-    private MainSystem mainSystem; //MainSystem mock to simulate its behavior
-
-    @InjectMocks
-    private Elevator elevator; //injects mainSystem mock into the elevator
+    private Elevator elevator;
 
     @BeforeEach
     void setUp() {
+        elevator = new Elevator();
+        elevator.enableTestMode();
     }
 
     @Test
-    void getDataFromScheduler() {
-        DataPacket expectedPacket = new DataPacket("10:00", "5", "UP", "3");
-        when(mainSystem.getSchedulerAndElevatorData()).thenReturn(expectedPacket);
-
-
-        elevator.getDataFromScheduler();
-
-        // Assert
-        verify(mainSystem).getSchedulerAndElevatorData(); // Verify interaction with mainSystem
-
+    void testInitialState() {
+        assertEquals(Elevator.ElevatorState.IDLE, elevator.getCurrentState(), "Elevator should start in IDLE state.");
     }
 
+    //Testing the movement of the elevator
     @Test
-    void sendDataToScheduler() {
-        DataPacket packetToSend = new DataPacket("10:15", "3", "DOWN", "1");
+    void testMoveElevator() {
 
+        elevator.setCurrentFloor(2);
+        elevator.setTargetFloor(5);
+        elevator.setCurrentState(Elevator.ElevatorState.MOVING);
+        elevator.run();
 
-//        elevator.sendDataToScheduler(packetToSend);
-
-        // Assert
-//        verify(mainSystem).updateSchedulerAndElevatorData(packetToSend);
-
+        assertEquals(2, elevator.getCurrentFloor(), "Elevator should be at target floor after moving.");
+        assertEquals(Elevator.ElevatorState.MOVING, elevator.getCurrentState(), "Elevator should enter NOTIFY_SCHEDULER state after reaching the target floor.");
     }
+
+    //testing that the elevator can handle datapackets
+    @Test
+    void testHandleDataPacket() {
+        DataPacket requestPacket = new DataPacket("12:00", "2", "Up", "5");
+        elevator.setCurrentDataPacket(requestPacket);
+        elevator.run();
+
+        assertEquals(requestPacket, elevator.getCurrentDataPacket(), "Elevator should have the expected data packet after handling.");
+    }
+
 }

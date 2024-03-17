@@ -120,6 +120,35 @@ public class Elevator implements Runnable {
         sendDataToScheduler(notificationPacket.toString());
     }
 
+    // Method to set the current data packet for testing purposes
+    public void setCurrentDataPacket(DataPacket packet) {
+        this.currentDataPacket = packet;
+    }
+
+    // Method to get the current data packet for assertions in tests
+    public DataPacket getCurrentDataPacket() {
+        return this.currentDataPacket;
+    }
+
+    // Method to directly set the elevator's current floor for testing
+    public void setCurrentFloor(int floor) {
+        this.currentFloor = floor;
+    }
+
+    // Method to get the current floor for assertions in tests
+    public int getCurrentFloor() {
+        return this.currentFloor;
+    }
+
+    // Method to set the target floor directly for testing purposes
+    public void setTargetFloor(int floor) {
+        this.targetFloor = floor;
+    }
+
+    // Method to get the target floor for assertions in tests
+    public int getTargetFloor() {
+        return this.targetFloor;
+    }
 
     //Below is the state machine inside the run method
     @Override

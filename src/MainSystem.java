@@ -107,6 +107,12 @@ public class MainSystem {
 
 	 }
 
+	public synchronized void setSchedulerAndElevatorData(DataPacket packet) {
+		this.schedulerAndElevatorData = packet;
+		// Notify any waiting threads that new data is available.
+		notifyAll();
+	}
+
 	 private synchronized static void printPacketData(DatagramPacket packet){
 		  //Output data
 		  System.out.print("Containing... as a string: ");

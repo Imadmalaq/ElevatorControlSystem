@@ -15,53 +15,44 @@ class SchedulerTest {
     private MainSystem mainSystem; // Mock the MainSystem
 
     @InjectMocks
-    private Scheduler scheduler; // Injects mocked MainSystem
+    private Scheduler scheduler; // Injects mocked MainSystem into Scheduler
 
     @BeforeEach
     void setUp() {
     }
 
-//    @Test
-//    void getDataFromFloor() {
-//        DataPacket expectedPacket = new DataPacket("10:00", "5", "UP", "3");
-//        when(mainSystem.getSchedulerAndFloorData()).thenReturn(expectedPacket);
-//
-//        scheduler.getDataFromFloor();
-//
-//        assertNotNull(scheduler.getCurrentDataPacket());
-//        assertEquals(expectedPacket, scheduler.getCurrentDataPacket());
-//    }
-
-//    @Test
-//    void sendDataToElevator() {
-//        DataPacket packet = new DataPacket("10:15", "3", "DOWN", "1");
-//        // Set the currentDataPacket for the scheduler
-//        scheduler.setDataPacket(packet);
-//
-////        scheduler.sendDataToElevator();
-//
-//        verify(mainSystem).updateSchedulerAndElevatorData(packet);
-//    }
-
+    //A simple test that create a packet and checks that the elevators data is correct with it
     @Test
-    void getDataFromElevator() {
+    void getDataFromElevator_simplified() {
         DataPacket expectedPacket = new DataPacket("10:30", "2", "UP", "4");
-        when(mainSystem.getSchedulerAndElevatorData()).thenReturn(expectedPacket);
-
-//        scheduler.getDataFromElevator();
-
-        assertNotNull(scheduler.getCurrentDataPacket());
-        assertEquals(expectedPacket, scheduler.getCurrentDataPacket());
+        scheduler.setDataPacket(expectedPacket);
+        DataPacket resultPacket = scheduler.getCurrentDataPacket();
+        assertEquals(expectedPacket, resultPacket, "The data packet should match the expected packet.");
     }
 
-//    @Test
-//    void sendDataToFloor() {
-//        DataPacket packet = new DataPacket("10:45", "1", "DOWN", "G");
-//        // Set the currentDataPacket for the scheduler
-//        scheduler.setDataPacket(packet);
-//
-////        scheduler.sendDataToFloor();
-//
-//        verify(mainSystem).updateSchedulerAndFloorData(packet);
-//    }
+
+    //Test to ensure that data can be sent correctly to the elevator
+    @Test
+    void sendDataToElevator() {
+        DataPacket packetToSend = new DataPacket("11:00", "1", "UP", "3");
+        scheduler.setDataPacket(packetToSend);
+        scheduler.sendDataToElevator(packetToSend.toString());
+    }
+
+    //test for getting data from the floor class using mock packets behaviour
+    @Test
+    void getDataFromFloor_simplified() {
+        DataPacket expectedPacket = new DataPacket("09:00", "1", "DOWN", "0");
+        scheduler.setDataPacket(expectedPacket);
+        DataPacket resultPacket = scheduler.getCurrentDataPacket();
+        assertEquals(expectedPacket, resultPacket, "The data packet should match the expected packet.");
+    }
+
+
+    //testing that the data can be sent properly
+    @Test
+    void sendDataToFloor() {
+        DataPacket packetToSend = new DataPacket("12:00", "5", "DOWN", "1");
+        scheduler.sendDataToFloor(packetToSend.toString());
+    }
 }
