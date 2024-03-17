@@ -28,4 +28,8 @@ public class DataPacket implements Serializable {
     public String getCarButton() {
         return carButton;
     }
+
+    public String toString() {
+        return time + " " + floor + " " + direction + " " + carButton;
+    }
 }

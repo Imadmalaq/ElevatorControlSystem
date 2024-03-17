@@ -1,13 +1,17 @@
+import com.sun.tools.javac.Main;
+
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.Scanner;
 
 public class Floor implements Runnable{
 
-    private final MainSystem mainSystem;
 
-    public Floor(MainSystem mainSystem) {
-        this.mainSystem = mainSystem;
+    public Floor() {
     }
 
     /**
@@ -20,7 +24,7 @@ public class Floor implements Runnable{
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
                 // Process the data immediately upon reading
-                DataPacket dataPacket = processInputData(data);
+                DataPacket dataPacket = processStringIntoDataPacket(data);
                 if (dataPacket != null) {
                     // Send and process the data packet immediately
                     handleDataPacket(dataPacket);
@@ -38,10 +42,11 @@ public class Floor implements Runnable{
      * @param data - One line from the input file
      * @return DataPacket object
      */
-    public DataPacket processInputData (String data){
+    public static DataPacket processStringIntoDataPacket(String data){
         String[] parts = data.split(" ");
-        if(parts.length != 4){
+        if(!isValidDataPacket(data)){
             System.out.println("Invalid input");
+            System.out.println("Input: " + data);
             return null;
         }
 
@@ -53,32 +58,72 @@ public class Floor implements Runnable{
         return new DataPacket(time, floor, direction, carButton);
     }
 
-    /**
-     * Sends the data to the scheduler
-     * @param packet - DataPacket object
-     */
-    public void sendDataToScheduler (DataPacket packet){
-        System.out.println("Sending Data to scheduler from floor: " + packet.getTime() + " " + packet.getFloor() + " " + packet.getDirection() + " " + packet.getCarButton());
-        mainSystem.updateSchedulerAndFloorData(packet);
-    }
-
-    /**
-     * Receives the data from the scheduler and sets the currentDataPacket
-     */
-    public void receiveDataFromScheduler(){
-        DataPacket data = mainSystem.getSchedulerAndFloorData();
-        System.out.println("Floor received: " + data.getTime() + " " + data.getFloor() + " " + data.getDirection() + " " + data.getCarButton()+"\n\n");
+    public static boolean isValidDataPacket(String data) {
+        String[] parts = data.split(" ");
+        try {
+            int test = Integer.parseInt(parts[1]);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return parts.length == 4;
     }
 
     public void handleDataPacket(DataPacket dataPacket) {
-        sendDataToScheduler(dataPacket);
+        DatagramSocket tempSendReceiveSocket = null;
         try {
-            Thread.sleep(1000);
+            tempSendReceiveSocket = new DatagramSocket();
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
+        }
+        sendDataToScheduler(dataPacket, tempSendReceiveSocket);
+        MainSystem.waitForAck(tempSendReceiveSocket);
+        try {
+            Thread.sleep(1500);
         } catch (InterruptedException e) {
             System.out.println("Thread interrupted: " + e.getMessage());
         }
-        receiveDataFromScheduler();
+        getDataFromScheduler();
     }
+
+    public void sendDataToScheduler(DataPacket packet, DatagramSocket tempSendSocket) {
+        byte[] message = new byte[MainSystem.buffer_size];
+        message = packet.toString().getBytes();
+        DatagramPacket dataPacket = new DatagramPacket(message, message.length, MainSystem.address, MainSystem.Scheduler_Floor_Port_Number);
+
+        MainSystem.printSendPacketData(dataPacket);
+        try {
+            tempSendSocket.send(dataPacket);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void getDataFromScheduler () {
+        try {
+            // Prepare a buffer to store incoming data
+            byte[] sendBuffer = new byte[MainSystem.buffer_size]; // Adjust size as necessary
+            byte[] returnBuffer = new byte[MainSystem.buffer_size]; // Adjust size as necessary
+
+            // Create a DatagramPacket for receiving data
+
+            sendBuffer = "Get Request Floor".getBytes();
+
+            DatagramPacket request = new DatagramPacket(sendBuffer, sendBuffer.length, MainSystem.address, MainSystem.Scheduler_Floor_Port_Number);
+            DatagramPacket response = new DatagramPacket(returnBuffer, returnBuffer.length, MainSystem.address, MainSystem.Floor_Port_Number);
+            MainSystem.rpc_send(request, response);
+            MainSystem.printReceivePacketData(response);
+
+            MainSystem.sendAcknowledgment(response);
+
+
+
+        } catch (Exception e) {
+            System.out.println("Exception in getDataFromScheduler: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+
 
     @Override
     public void run() {
