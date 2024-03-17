@@ -4,19 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f5b9fadb-d1c9-404e-ac75-6e069ef719b2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SYSC3303Project.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/DataPacket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/DataPacket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Elevator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Elevator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ElevatorTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ElevatorTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FloorTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FloorTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MainSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MainSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MainSystemTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MainSystemTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/SchedulerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/SchedulerTest.java" afterDir="false" />
-    </list>
+    <list default="true" id="76936e4a-545d-4acd-8ab8-5cc3fd9f114e" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -31,6 +19,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -57,22 +50,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "/Users/kieranrourke/Documents/Carleton/year3/Winter 2024/SYSC 3303/SYSC3303Project",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2045977",
-    "settings.editor.selected.configurable": "preferences.keymap",
-    "vue.rearranger.settings.migration": "true"
+    "git-widget-placeholder": "Testing4"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -182,7 +160,7 @@
       <workItem from="1710431628512" duration="905000" />
       <workItem from="1710634625155" duration="1427000" />
       <workItem from="1710640549887" duration="13602000" />
-      <workItem from="1710704528928" duration="3579000" />
+      <workItem from="1710704528928" duration="3930000" />
     </task>
     <servers />
   </component>
