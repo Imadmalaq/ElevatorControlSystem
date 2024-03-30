@@ -22,6 +22,7 @@ public class Scheduler implements Runnable {
     private boolean testModeEnabled = false; // Flag to indicate if test mode is enabled
     private boolean stopAfterOneCycle = false; // For testing: Stop the scheduler after one cycle
     public HashMap<Integer, ElevatorDataPacket> elevatorData;
+    private HashMap<Integer, String> elevatorFaults = new HashMap<>(); // Track faults reported by elevators
     private int numElevators;
     boolean hasReachedInitialFloor = false;
 
@@ -52,10 +53,10 @@ public class Scheduler implements Runnable {
      * Gets the data from the elevator and sets the currentDataPacket
      * @return boolean - true if elevator is idle
      */
-    public boolean getDataFromElevator(){
+    public boolean getDataFromElevator() {
         boolean isIdle = false;
         System.out.println("Getting Data from Elevator\n");
-        DatagramSocket elevatorSocket = null; // Use the port number the Elevator will listen on
+        DatagramSocket elevatorSocket = null;
         try {
             elevatorSocket = new DatagramSocket(MainSystem.Scheduler_Elevator_Port_Number);
         } catch (SocketException e) {
@@ -69,38 +70,58 @@ public class Scheduler implements Runnable {
             elevatorSocket.receive(packet);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-
-        MainSystem.printReceivePacketData(packet);
-        // Check if elevator is sending a data packet
-        String packetData = new String(packet.getData(),0, packet.getLength());
-        int id = Integer.parseInt(packetData.substring(0,1));
-        packetData = packetData.substring(1);
-
-
-        ElevatorDataPacket eData = new ElevatorDataPacket(0, MainSystem.Elevator_Port_Number + id, id);
-
-        if (Floor.isValidDataPacket(packetData)){
-            currentDataPacket = Floor.processStringIntoDataPacket(packetData);
-            eData.setCurrentFloor(Integer.parseInt(currentDataPacket.getFloor()));
-            System.out.println("Sending ACK to elevator\n");
-            MainSystem.sendAcknowledgment(packet);
-        } else if (packetData.equals("Elevator is now idle")) {
-            System.out.println("Sending ACK to elevator\n");
-            eData.setCurrentFloor(elevatorData.get(id).getCurrentFloor());
-            MainSystem.sendAcknowledgment(packet);
-            isIdle = true;
-        } else {
-            if (elevatorData.get(id) != null){
-                eData.setCurrentFloor(elevatorData.get(id).getCurrentFloor());
+        } finally {
+            if (elevatorSocket != null) {
+                elevatorSocket.close();
             }
         }
 
-        elevatorData.put(id, eData);
-        elevatorSocket.close();
-        return isIdle;
+        MainSystem.printReceivePacketData(packet);
+        String packetData = new String(packet.getData(), 0, packet.getLength());
+        int id = Integer.parseInt(packetData.substring(0, 1));
+        packetData = packetData.substring(1);
 
+        if (Floor.isValidDataPacket(packetData)) {
+            currentDataPacket = Floor.processStringIntoDataPacket(packetData);
+            System.out.println("Received from Elevator ID " + id + ": " + currentDataPacket.toString());
+
+            // Acknowledge receipt of the data packet
+            MainSystem.sendAcknowledgment(packet);
+
+            // If the faultType is not "NF" (No Fault), handle the fault
+            if (!"NF".equals(currentDataPacket.getFaultType())) {
+                handleElevatorFault(id, currentDataPacket.getFaultType());
+                return false; // Returning false since the elevator might not be considered 'idle' in case of a fault
+            }
+
+            isIdle = "Elevator is now idle".equals(packetData) || "NF".equals(currentDataPacket.getFaultType());
+        }
+
+        return isIdle;
     }
+
+    private void handleElevatorFault(int elevatorId, String faultType) {
+        // This only Log the fault for now
+        System.out.println("Elevator " + elevatorId + " reported a fault: " + faultType);
+
+        switch (faultType) {
+            case "FT": // Floor Timer fault
+                System.out.println("Critical: Elevator " + elevatorId + " is stuck or experiencing significant delays.");
+                // Here we can deactivate the elevator in the system until maintenance has resolved the issue
+                break;
+            case "DOF": // Door Open Fault
+                System.out.println("Warning: Elevator " + elevatorId + "'s door is stuck open.");
+                // Same here. We can deactivate the elevator in the system
+                break;
+            default:
+                System.out.println("Elevator " + elevatorId + " reported an unknown fault type.");
+                break;
+        }
+
+        // For simplicity, we decided to just mark the elevator as having a fault.
+        elevatorFaults.put(elevatorId, faultType);
+    }
+
 
     public void sendDataToElevator(String data, int elevatorID) {
         try {
@@ -190,24 +211,29 @@ public class Scheduler implements Runnable {
         this.direction = currentDataPacket.getDirection();
     }
 
-    public int pickElevator (int startingFloor){
-         ArrayList<ElevatorDataPacket> values = new ArrayList<>(elevatorData.values());
+    public int pickElevator(int startingFloor) {
+        // Check if elevatorData is empty
+        if (elevatorData.isEmpty()) {
+            System.out.println("No elevators available to pick.");
+            return -1; // Indicative value for no elevator available
+        }
 
-         ElevatorDataPacket closestElevator = values.get(0);
-         int closestDistance = Math.abs(startingFloor - closestElevator.getCurrentFloor());
+        ArrayList<ElevatorDataPacket> values = new ArrayList<>(elevatorData.values());
+        ElevatorDataPacket closestElevator = values.get(0);
+        int closestDistance = Math.abs(startingFloor - closestElevator.getCurrentFloor());
 
-         for (ElevatorDataPacket e : values) {
+        for (ElevatorDataPacket e : values) {
             int distance = Math.abs(startingFloor - e.getCurrentFloor());
-            if (distance < closestDistance){
-              closestElevator = e;
-              closestDistance = distance;
-           }
-         }
-         System.out.println("Picking Elevator ID: " + closestElevator.getId() + " on floor " +
-                closestElevator.getCurrentFloor() + " for floor " + startingFloor + "\n");
-         return closestElevator.getId();
+            if (distance < closestDistance) {
+                closestElevator = e;
+                closestDistance = distance;
+            }
+        }
 
+        System.out.println("Picking Elevator ID: " + closestElevator.getId() + " on floor " + closestElevator.getCurrentFloor() + " for floor " + startingFloor + "\n");
+        return closestElevator.getId();
     }
+
 
     @Override
     public void run() {
@@ -227,26 +253,30 @@ public class Scheduler implements Runnable {
                     }
                 }
                 case FLOOR_REQUEST_RECEIVED -> {
-
-                    // Send the floor request to the elevator
-                    if(elevatorData.isEmpty()){
-                        for (int i = 0 ; i < numElevators; i++){
+                    // Try to get data from elevators
+                    if (elevatorData.isEmpty()) {
+                        for (int i = 0; i < numElevators; i++) {
                             getDataFromElevator();
                         }
                     } else {
                         getDataFromElevator();
                     }
-                    int id = pickElevator(initialFloor);
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+
+                    // Attempt to pick an elevator based on the starting floor
+                    int elevatorId = pickElevator(initialFloor);
+
+                    if (elevatorId == -1) {
+                        System.out.println("Currently, no elevator is available to handle the request.");
+                        // Here, you might want to implement logic to queue the request or retry after some time
+                    } else {
+                        // If an elevator is successfully picked, send the request to that elevator
+                        sendDataToElevator(currentDataPacket.toString(), elevatorId);
+                        hasReachedInitialFloor = false; // Resetting the state for the next operation
+                        currentState = SchedulerState.SENDING_REQUEST_TO_ELEVATOR;
+                        System.out.println("Sending floor request to elevator, initial floor: " + initialFloor + ", target floor: " + targetFloor + ", picked elevator ID: " + elevatorId);
                     }
-                    sendDataToElevator(currentDataPacket.toString(), id );
-                    hasReachedInitialFloor = false;
-                    currentState = SchedulerState.SENDING_REQUEST_TO_ELEVATOR;
-                    // System.out.println("Sending floor request to elevator, initial floor: " + initalFloor + "target floor: " + targetFloor);
                 }
+
 
                 case SENDING_REQUEST_TO_ELEVATOR -> {
 

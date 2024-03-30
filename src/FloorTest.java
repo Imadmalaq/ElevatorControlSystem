@@ -29,7 +29,7 @@ class FloorTest {
     @Test
     void processInputData_ValidInput() {
         String inputData = "10:00 5 UP 3";
-        DataPacket expected = new DataPacket("10:00", "5", "UP", "3");
+        DataPacket expected = new DataPacket("10:00", "5", "UP", "3", "NF");
 
         DataPacket result = Floor.processStringIntoDataPacket(inputData);
 
@@ -52,7 +52,7 @@ class FloorTest {
     @Test
     void handleDataPacket_ValidData() {
         String inputData = "10:00 5 UP 3";
-        DataPacket expected = new DataPacket("10:00", "5", "UP", "3");
+        DataPacket expected = new DataPacket("10:00", "5", "UP", "3", "NF");
         DataPacket result = Floor.processStringIntoDataPacket(inputData);
         assertEquals(expected,result);
     }

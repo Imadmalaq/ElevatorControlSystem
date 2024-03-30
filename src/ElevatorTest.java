@@ -33,7 +33,7 @@ class ElevatorTest {
     //testing that the elevator can handle datapackets
     @Test
     void testHandleDataPacket() {
-        DataPacket requestPacket = new DataPacket("12:00", "2", "Up", "5");
+        DataPacket requestPacket = new DataPacket("12:00", "2", "Up", "5", "NF");
         elevator.setCurrentDataPacket(requestPacket);
         elevator.run();
 

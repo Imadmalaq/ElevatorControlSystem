@@ -42,9 +42,9 @@ public class Floor implements Runnable{
      * @param data - One line from the input file
      * @return DataPacket object
      */
-    public static DataPacket processStringIntoDataPacket(String data){
+    public static DataPacket processStringIntoDataPacket(String data) {
         String[] parts = data.split(" ");
-        if(!isValidDataPacket(data)){
+        if (!isValidDataPacket(data)) {
             System.out.println("Invalid input");
             System.out.println("Input: " + data);
             return null;
@@ -54,8 +54,9 @@ public class Floor implements Runnable{
         String floor = parts[1];
         String direction = parts[2];
         String carButton = parts[3];
+        String faultType = parts[4]; // Parse the fault type from the input
 
-        return new DataPacket(time, floor, direction, carButton);
+        return new DataPacket(time, floor, direction, carButton, faultType);
     }
 
     public static boolean isValidDataPacket(String data) {
@@ -65,10 +66,11 @@ public class Floor implements Runnable{
         } catch (NumberFormatException nfe) {
             return false;
         }
-        return parts.length == 4;
+        return parts.length == 5;
     }
 
     public void handleDataPacket(DataPacket dataPacket) {
+        System.out.println("Handling Data Packet with Fault Type: " + dataPacket.getFaultType());
         DatagramSocket tempSendReceiveSocket = null;
         try {
             tempSendReceiveSocket = new DatagramSocket();
