@@ -23,6 +23,7 @@ public class Scheduler implements Runnable {
     private boolean stopAfterOneCycle = false; // For testing: Stop the scheduler after one cycle
     public HashMap<Integer, ElevatorDataPacket> elevatorData;
     private int numElevators;
+    boolean hasReachedInitialFloor = false;
 
 
     public enum SchedulerState {
@@ -47,7 +48,12 @@ public class Scheduler implements Runnable {
         currentDataPacket = p;
     }
 
-    public void getDataFromElevator(){
+    /**
+     * Gets the data from the elevator and sets the currentDataPacket
+     * @return boolean - true if elevator is idle
+     */
+    public boolean getDataFromElevator(){
+        boolean isIdle = false;
         System.out.println("Getting Data from Elevator\n");
         DatagramSocket elevatorSocket = null; // Use the port number the Elevator will listen on
         try {
@@ -83,6 +89,7 @@ public class Scheduler implements Runnable {
             System.out.println("Sending ACK to elevator\n");
             eData.setCurrentFloor(elevatorData.get(id).getCurrentFloor());
             MainSystem.sendAcknowledgment(packet);
+            isIdle = true;
         } else {
             if (elevatorData.get(id) != null){
                 eData.setCurrentFloor(elevatorData.get(id).getCurrentFloor());
@@ -91,6 +98,7 @@ public class Scheduler implements Runnable {
 
         elevatorData.put(id, eData);
         elevatorSocket.close();
+        return isIdle;
 
     }
 
@@ -235,6 +243,7 @@ public class Scheduler implements Runnable {
                         throw new RuntimeException(e);
                     }
                     sendDataToElevator(currentDataPacket.toString(), id );
+                    hasReachedInitialFloor = false;
                     currentState = SchedulerState.SENDING_REQUEST_TO_ELEVATOR;
                     // System.out.println("Sending floor request to elevator, initial floor: " + initalFloor + "target floor: " + targetFloor);
                 }
@@ -247,22 +256,30 @@ public class Scheduler implements Runnable {
                 }
                 case WAITING_FOR_ELEVATOR_RESPONSE -> {
                     //Here the scheduler receives the response from the elevator that it reached a floor
-                    getDataFromElevator();
+                    boolean isIdle = getDataFromElevator();
                     //System.out.println("Response received elevator reached floor " + currentFloor);
-                    if (!Objects.equals(currentDataPacket.getFloor(), currentDataPacket.getCarButton())) {
-                        //Handles the direction
-                        if (direction.equals("Up")) {
-                            currentFloor++;
-                        } else {
-                            currentFloor--;
-                        }
-                        //If there is more floors to move to, it changes states to SEND_REQUEST_TO_ELEVATOR
-                        currentState = SchedulerState.SENDING_REQUEST_TO_ELEVATOR;
-                    } else {
-                        //Else we have reached the target floor
-                        getDataFromElevator();
+                    if (isIdle){
                         currentState = SchedulerState.PROCESSING_ELEVATOR_RESPONSE;
+                    } else {
+                        currentState = SchedulerState.SENDING_REQUEST_TO_ELEVATOR;
                     }
+//                    if (currentFloor == initialFloor){
+//                        hasReachedInitialFloor = true;
+//                    }
+//                    if (!Objects.equals(currentDataPacket.getFloor(), currentDataPacket.getCarButton())) {
+//                        //Handles the direction
+//                        if (direction.equals("Up")) {
+//                            currentFloor++;
+//                        } else {
+//                            currentFloor--;
+//                        }
+//                        //If there is more floors to move to, it changes states to SEND_REQUEST_TO_ELEVATOR
+//
+//                    } else if (hasReachedInitialFloor) {
+//                        //Else we have reached the target floor
+//                        getDataFromElevator();
+//                        currentState = SchedulerState.PROCESSING_ELEVATOR_RESPONSE;
+//                    }
                 }
                 case PROCESSING_ELEVATOR_RESPONSE -> {
                     //Elevator is now idle, the scheduler is now idle as well, it sends the data to the floor
@@ -280,7 +297,7 @@ public class Scheduler implements Runnable {
     }
 
     public static void main(String[] args) {
-        Scheduler scheduler = new Scheduler(2);
+        Scheduler scheduler = new Scheduler(1);
         Thread schedulerThread = new Thread(scheduler);
         schedulerThread.start();
     }

@@ -15,6 +15,8 @@ public class Elevator extends Thread {
     private String direction;
     private boolean testModeEnabled = false; // Flag to indicate if test mode is enabled
 
+    private boolean hasReachedInitialFloor = false;
+
     public enum ElevatorState {
         IDLE, MOVING, NOTIFY_SCHEDULER, DOOR_OPENING, DOOR_CLOSING
     }
@@ -151,6 +153,22 @@ public class Elevator extends Thread {
         return this.targetFloor;
     }
 
+    private void handleIncrementingFloor() {
+        if (hasReachedInitialFloor) {
+            if (direction.equals("Up")) {
+                currentFloor++;
+            } else {
+                currentFloor--;
+            }
+        } else {
+            if (currentFloor < initialFloor) {
+                currentFloor++;
+            } else {
+                currentFloor--;
+            }
+        }
+    }
+
     //Below is the state machine inside the run method
     @Override
     public void run() {
@@ -167,6 +185,7 @@ public class Elevator extends Thread {
                         //If there is a request, move to the floor. We change to the moving state
                         System.out.println("Moving to floor: " + currentDataPacket.getFloor());
                         targetFloor = Integer.parseInt(currentDataPacket.getCarButton());
+                        hasReachedInitialFloor = false;
                         initialFloor = Integer.parseInt(currentDataPacket.getFloor());
                         direction = currentDataPacket.getDirection();
                         currentState = ElevatorState.MOVING;
@@ -182,19 +201,22 @@ public class Elevator extends Thread {
                     //So for example: if we wanted 1 Up 3, floor 2 would be handled in this if statement
                     if(currentFloor != initialFloor && currentFloor != targetFloor){
                         //This is what handles if the elevator is going up or down
-                        if(direction.equals("Up")){
-                            currentFloor++;
-                        }else{
-                            currentFloor--;
-                        }
+                        handleIncrementingFloor();
+
                         //So the state goes back to moving, as the elevator still has floors to travel
                         System.out.println("Moving to floor: " + currentFloor);
                         currentState = ElevatorState.MOVING;
-                    }else{
+                    }else if (hasReachedInitialFloor){
                         // When the elevator reaches a floor that it must actually stop at, the doors will open
                         // Then it changes to the door opening state
                         System.out.println("Door opening at floor: " + currentFloor);
                         currentState = ElevatorState.DOOR_OPENING;
+                    } else {
+                        if (currentFloor == initialFloor){
+                            hasReachedInitialFloor = true;
+                        }
+                        handleIncrementingFloor();
+                        currentState = ElevatorState.MOVING;
                     }
                     break;
                 case DOOR_OPENING:
@@ -207,7 +229,7 @@ public class Elevator extends Thread {
                 case DOOR_CLOSING:
                     // If the current floor == targetFloor then we know the elevator reached its destination, so it notifys
                     // the scheduler, here we would also have a method to notify the scheduler but it's not implemented yet
-                    if(currentFloor == targetFloor){
+                    if(currentFloor == targetFloor && hasReachedInitialFloor){
                         // Simulating the elevator being idle
                         System.out.println("Elevator is now idle, notifying the scheduler\n");
                         //The below method will end our threads since the elevator is sending back the data
@@ -219,12 +241,9 @@ public class Elevator extends Thread {
                         }
                         currentState = ElevatorState.IDLE;
                     }else{
+
                         //This handles if the direction is up or down
-                        if(direction.equals("Up")){
-                            currentFloor++;
-                        }else{
-                            currentFloor--;
-                        }
+                        handleIncrementingFloor();
                         //If the elevator has more floors to climb or drop, it moves to the floor, and changes states to MOVING
                         System.out.println("Moving to floor: " + currentFloor);
                         // Notify the scheduler about the completion of the task
@@ -246,7 +265,7 @@ public class Elevator extends Thread {
 //        elevator0.setId(2);
 
         elevator0.start();
-        elevator1.start();
+//        elevator1.start();
 //        elevator2.start();
 
     }
