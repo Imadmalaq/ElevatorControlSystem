@@ -262,7 +262,7 @@ public class Elevator extends Thread {
     private void handleFault(String faultType) {
         switch (faultType) {
             case "FT": // Floor Timer Fault (Hard Fault)
-                System.out.println("Critical Fault Detected: Elevator " + id + " encountered a floor timer fault. Elevator shutting down.");
+                System.out.println("Critical Fault Detected: Elevator " + id + " encountered a floor timer fault. Elevator shutting down.\n");
                 currentState = ElevatorState.FAULT; // Shut down the elevator
                 // Notify the scheduler about the fault and shutdown
                 sendDataToScheduler("Elevator " + id + " FAULT: Floor timer fault. Elevator shutdown.");

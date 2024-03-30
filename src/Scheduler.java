@@ -219,8 +219,8 @@ public class Scheduler implements Runnable {
               closestDistance = distance;
            }
          }
-         System.out.println("Picking Elevator ID: " + closestElevator.getId() + " on floor " +
-                closestElevator.getCurrentFloor() + " for floor " + startingFloor + "\n");
+         System.out.println("Picking Elevator ID: " + closestElevator.getId() + " currently on floor " +
+                closestElevator.getCurrentFloor() + " to initial floor " + startingFloor + " with target floor " + targetFloor + "\n");
          return closestElevator.getId();
 
     }
