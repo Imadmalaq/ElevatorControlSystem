@@ -1,12 +1,9 @@
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class Scheduler implements Runnable {
 
@@ -26,10 +23,11 @@ public class Scheduler implements Runnable {
 
     private int numElevators;
     boolean hasReachedInitialFloor = false;
+    boolean isCriticalFault = false;
 
 
     public enum SchedulerState {
-        WAITING_FOR_REQUEST, FLOOR_REQUEST_RECEIVED, SENDING_REQUEST_TO_ELEVATOR, WAITING_FOR_ELEVATOR_RESPONSE, PROCESSING_ELEVATOR_RESPONSE
+        WAITING_FOR_REQUEST, FLOOR_REQUEST_RECEIVED, SENDING_REQUEST_TO_ELEVATOR, WAITING_FOR_ELEVATOR_RESPONSE, PROCESSING_ELEVATOR_RESPONSE, HANDLE_CRITICAL_FAULT
     }
 
     public Scheduler(int numElevators) {
@@ -101,13 +99,15 @@ public class Scheduler implements Runnable {
             if (elevatorData.get(id) != null){
                 eData.setCurrentFloor(elevatorData.get(id).getCurrentFloor());
             }
-            if (!"NF".equals(currentDataPacket.getFaultType())) {
+            if (!"NF".equals(currentDataPacket.getFaultType()) && !packetData.equals(" Get Request Elevator")) {
                 handleElevatorFault(id, currentDataPacket.getFaultType());
             }
 
         }
 
-        elevatorData.put(id, eData);
+        if(!isCriticalFault){
+            elevatorData.put(id, eData);
+        }
         elevatorSocket.close();
         return isIdle;
 
@@ -260,7 +260,8 @@ public class Scheduler implements Runnable {
                     }
 
                     if (elevatorId == -1) {
-                        System.out.println("Currently, no elevator is available to handle the request.");
+                        System.out.println("Currently, no elevators are working Shutting down...\n");
+                        System.exit(0);
                         // Here, you might want to implement logic to queue the request or retry after some time
                     } else {
                         // If an elevator is successfully picked, send the request to that elevator
@@ -280,10 +281,16 @@ public class Scheduler implements Runnable {
                     //Here the scheduler receives the response from the elevator that it reached a floor
                     boolean isIdle = getDataFromElevator();
                     //System.out.println("Response received elevator reached floor " + currentFloor);
+
                     if (isIdle){
                         currentState = SchedulerState.PROCESSING_ELEVATOR_RESPONSE;
                     } else {
                         currentState = SchedulerState.SENDING_REQUEST_TO_ELEVATOR;
+                    }
+
+                    if (isCriticalFault) {
+                        isCriticalFault = false;
+                        currentState = SchedulerState.HANDLE_CRITICAL_FAULT;
                     }
                 }
                 case PROCESSING_ELEVATOR_RESPONSE -> {
@@ -293,6 +300,28 @@ public class Scheduler implements Runnable {
                     getDataFromFloor();
                     sendDataToFloor(currentDataPacket.toString());
                     currentState = SchedulerState.WAITING_FOR_REQUEST;
+                }
+
+                case HANDLE_CRITICAL_FAULT -> {
+
+                    int elevatorId = pickElevator(initialFloor);
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    if (elevatorId == -1) {
+                        System.out.println("Currently, all elevators are under maintenance no one to handle the request.");
+                        // Here, you might want to implement logic to queue the request or retry after some time
+                    } else {
+                        // If an elevator is successfully picked, send the request to that elevator
+                        currentDataPacket = new DataPacket(currentDataPacket.getTime(), currentDataPacket.getFloor(), currentDataPacket.getDirection(), currentDataPacket.getCarButton(), "NF");
+                        sendDataToElevator(currentDataPacket.toString(), elevatorId);
+                        hasReachedInitialFloor = false; // Resetting the state for the next operation
+                        currentState = SchedulerState.SENDING_REQUEST_TO_ELEVATOR;
+                    }
+
                 }
             }
             if (stopAfterOneCycle) {
@@ -307,7 +336,9 @@ public class Scheduler implements Runnable {
 
         switch (faultType) {
             case "FT": // Floor Timer fault
-                System.out.println("Critical: Elevator " + elevatorId + " is stuck or experiencing significant delays.");
+                System.out.println("Critical: Elevator " + elevatorId + " is stuck or experiencing significant delays.\n");
+                isCriticalFault = true;
+                elevatorData.remove(elevatorId);
                 // Here we can deactivate the elevator in the system until maintenance has resolved the issue
                 break;
             case "DOF": // Door Open Fault
