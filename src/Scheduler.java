@@ -22,6 +22,8 @@ public class Scheduler implements Runnable {
     private boolean testModeEnabled = false; // Flag to indicate if test mode is enabled
     private boolean stopAfterOneCycle = false; // For testing: Stop the scheduler after one cycle
     public HashMap<Integer, ElevatorDataPacket> elevatorData;
+    private HashMap<Integer, String> elevatorFaults = new HashMap<>(); // Track faults reported by elevators
+
     private int numElevators;
     boolean hasReachedInitialFloor = false;
 
@@ -85,6 +87,11 @@ public class Scheduler implements Runnable {
             eData.setCurrentFloor(Integer.parseInt(currentDataPacket.getFloor()));
             System.out.println("Sending ACK to elevator\n");
             MainSystem.sendAcknowledgment(packet);
+
+            if (!"NF".equals(currentDataPacket.getFaultType())) {
+                handleElevatorFault(id, currentDataPacket.getFaultType());
+                return false; // Returning false since the elevator might not be considered 'idle' in case of a fault
+            }
         } else if (packetData.equals("Elevator is now idle")) {
             System.out.println("Sending ACK to elevator\n");
             eData.setCurrentFloor(elevatorData.get(id).getCurrentFloor());
@@ -193,6 +200,11 @@ public class Scheduler implements Runnable {
     public int pickElevator (int startingFloor){
          ArrayList<ElevatorDataPacket> values = new ArrayList<>(elevatorData.values());
 
+        if (elevatorData.isEmpty()) {
+            System.out.println("No elevators available to pick.");
+            return -1; // Indicative value for no elevator available
+        }
+
          ElevatorDataPacket closestElevator = values.get(0);
          int closestDistance = Math.abs(startingFloor - closestElevator.getCurrentFloor());
 
@@ -236,13 +248,23 @@ public class Scheduler implements Runnable {
                     } else {
                         getDataFromElevator();
                     }
-                    int id = pickElevator(initialFloor);
+                    int elevatorId = pickElevator(initialFloor);
                     try {
                         Thread.sleep(500);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                    sendDataToElevator(currentDataPacket.toString(), id );
+
+                    if (elevatorId == -1) {
+                        System.out.println("Currently, no elevator is available to handle the request.");
+                        // Here, you might want to implement logic to queue the request or retry after some time
+                    } else {
+                        // If an elevator is successfully picked, send the request to that elevator
+                        sendDataToElevator(currentDataPacket.toString(), elevatorId);
+                        hasReachedInitialFloor = false; // Resetting the state for the next operation
+                        currentState = SchedulerState.SENDING_REQUEST_TO_ELEVATOR;
+                    }
+                    sendDataToElevator(currentDataPacket.toString(), elevatorId );
                     hasReachedInitialFloor = false;
                     currentState = SchedulerState.SENDING_REQUEST_TO_ELEVATOR;
                     // System.out.println("Sending floor request to elevator, initial floor: " + initalFloor + "target floor: " + targetFloor);
@@ -263,23 +285,6 @@ public class Scheduler implements Runnable {
                     } else {
                         currentState = SchedulerState.SENDING_REQUEST_TO_ELEVATOR;
                     }
-//                    if (currentFloor == initialFloor){
-//                        hasReachedInitialFloor = true;
-//                    }
-//                    if (!Objects.equals(currentDataPacket.getFloor(), currentDataPacket.getCarButton())) {
-//                        //Handles the direction
-//                        if (direction.equals("Up")) {
-//                            currentFloor++;
-//                        } else {
-//                            currentFloor--;
-//                        }
-//                        //If there is more floors to move to, it changes states to SEND_REQUEST_TO_ELEVATOR
-//
-//                    } else if (hasReachedInitialFloor) {
-//                        //Else we have reached the target floor
-//                        getDataFromElevator();
-//                        currentState = SchedulerState.PROCESSING_ELEVATOR_RESPONSE;
-//                    }
                 }
                 case PROCESSING_ELEVATOR_RESPONSE -> {
                     //Elevator is now idle, the scheduler is now idle as well, it sends the data to the floor
@@ -296,8 +301,30 @@ public class Scheduler implements Runnable {
         }
     }
 
+    private void handleElevatorFault(int elevatorId, String faultType) {
+        // This only Log the fault for now
+        System.out.println("Elevator " + elevatorId + " reported a fault: " + faultType);
+
+        switch (faultType) {
+            case "FT": // Floor Timer fault
+                System.out.println("Critical: Elevator " + elevatorId + " is stuck or experiencing significant delays.");
+                // Here we can deactivate the elevator in the system until maintenance has resolved the issue
+                break;
+            case "DOF": // Door Open Fault
+                System.out.println("Warning: Elevator " + elevatorId + "'s door is stuck open.");
+                // Same here. We can deactivate the elevator in the system
+                break;
+            default:
+                System.out.println("Elevator " + elevatorId + " reported an unknown fault type.");
+                break;
+        }
+
+        // For simplicity, we decided to just mark the elevator as having a fault.
+        elevatorFaults.put(elevatorId, faultType);
+    }
+
     public static void main(String[] args) {
-        Scheduler scheduler = new Scheduler(1);
+        Scheduler scheduler = new Scheduler(2);
         Thread schedulerThread = new Thread(scheduler);
         schedulerThread.start();
     }

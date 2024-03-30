@@ -18,7 +18,7 @@ public class Elevator extends Thread {
     private boolean hasReachedInitialFloor = false;
 
     public enum ElevatorState {
-        IDLE, MOVING, NOTIFY_SCHEDULER, DOOR_OPENING, DOOR_CLOSING
+        IDLE, MOVING, NOTIFY_SCHEDULER, DOOR_OPENING, DOOR_CLOSING, FAULT
     }
 
     public Elevator() {
@@ -46,38 +46,36 @@ public class Elevator extends Thread {
      */
     public void getDataFromScheduler() {
         try {
-
             // Prepare a buffer to store incoming data
-            byte[] sendBuffer = new byte[MainSystem.buffer_size]; // Adjust size as necessary
-            byte[] returnBuffer = new byte[MainSystem.buffer_size]; // Adjust size as necessary
+            byte[] sendBuffer = (id + " Get Request Elevator").getBytes();
+            byte[] returnBuffer = new byte[MainSystem.buffer_size];
 
-            // Create a DatagramPacket for receiving data
-
-            sendBuffer = (id + "Get Request Elevator").getBytes();
-
+            // Create a DatagramPacket for sending the request and receiving the response
             DatagramPacket request = new DatagramPacket(sendBuffer, sendBuffer.length, MainSystem.address, MainSystem.Scheduler_Elevator_Port_Number);
             DatagramPacket response = new DatagramPacket(returnBuffer, returnBuffer.length, MainSystem.address, MainSystem.Elevator_Port_Number + id);
-            ;
-//                Thread.sleep(300);
+
+            // Send the request and receive the response
             MainSystem.rpc_send(request, response, id);
             MainSystem.printReceivePacketData(response);
-
             MainSystem.sendAcknowledgment(response);
 
+            // Extract the response data into a string
+            String responseData = new String(response.getData(), 0, response.getLength());
 
-            DataPacket receivedData;
-            // Deserialize the data from the received packet into a DataPacket object
-            if (Floor.isValidDataPacket(new String(response.getData(),0, response.getLength()))) {
-                receivedData = Floor.processStringIntoDataPacket(new String(response.getData(),0, response.getLength()));
-            } else {
-                return;
-            }
+            // Check if the response is a valid DataPacket
+            if (Floor.isValidDataPacket(responseData)) {
+                // Deserialize the data from the received packet into a DataPacket object
+                DataPacket receivedData = Floor.processStringIntoDataPacket(responseData);
+                if (receivedData != null) {
+                    this.currentDataPacket = receivedData;
+                    System.out.println("Elevator received data: " + receivedData.toString());
 
-            // Process the received DataPacket
-            if (receivedData != null) {
-                this.currentDataPacket = receivedData;
-                System.out.println("Elevator received data: " + receivedData.getFloor() + " " + receivedData.getDirection() + " " + receivedData.getCarButton());
-                // Additional processing can be done here
+                    // Handle fault if faultType is not "NF"
+                    if (!"NF".equals(receivedData.getFaultType())) {
+                        handleFault(receivedData.getFaultType());
+                        return; // Exit the method if there's a fault, halting further processing
+                    }
+                }
             }
         } catch (Exception e) {
             System.out.println("Exception in getDataFromScheduler: " + e.getMessage());
@@ -118,7 +116,7 @@ public class Elevator extends Thread {
                 Long.toString(System.currentTimeMillis()), // Use current time as timestamp
                 Integer.toString(currentFloor),
                 direction,
-                Integer.toString(targetFloor)); // Use currentFloor for both floor and carButton as a simple notification
+                Integer.toString(targetFloor), "NF"); // Use currentFloor for both floor and carButton as a simple notification
 
         sendDataToScheduler(notificationPacket.toString());
     }
@@ -250,7 +248,39 @@ public class Elevator extends Thread {
                         currentState = ElevatorState.MOVING;
                     }
                     break;
+                case FAULT:
+                    // New FAULT state handling
+                    System.out.println("Elevator " + id + " is in a FAULT state, stopped at floor " + currentFloor);
+                    sendDataToScheduler("Elevator " + id + " FAULT at floor " + currentFloor);
+                    // Here, we could implement logic to attempt recovery or wait for maintenance
+                    // For now, it will remain in this state until externally reset or fault is cleared
+                    break;
             }
+        }
+    }
+
+    private void handleFault(String faultType) {
+        switch (faultType) {
+            case "FT": // Floor Timer Fault (Hard Fault)
+                System.out.println("Critical Fault Detected: Elevator " + id + " encountered a floor timer fault. Elevator shutting down.");
+                currentState = ElevatorState.FAULT; // Shut down the elevator
+                // Notify the scheduler about the fault and shutdown
+                sendDataToScheduler("Elevator " + id + " FAULT: Floor timer fault. Elevator shutdown.");
+                break;
+            case "DOF": // Door Open Fault (Transient Fault)
+                System.out.println("Transient Fault Detected: Elevator " + id + " door is stuck open. Attempting to fix...");
+                // Simulate fixing the fault
+                try {
+                    Thread.sleep(1000); // Wait for 1 second to simulate fixing the fault
+                    System.out.println("Fault Fixed: Elevator " + id + " door issue resolved. Resuming operations.");
+                    // No state change needed, just resume operations
+                } catch (InterruptedException e) {
+                    System.out.println("Error while handling transient fault for Elevator " + id);
+                }
+                break;
+            default:
+                System.out.println("Unknown fault type received for Elevator " + id);
+                break;
         }
     }
 
@@ -265,7 +295,7 @@ public class Elevator extends Thread {
 //        elevator0.setId(2);
 
         elevator0.start();
-//        elevator1.start();
+        elevator1.start();
 //        elevator2.start();
 
     }
