@@ -101,6 +101,10 @@ public class Scheduler implements Runnable {
             if (elevatorData.get(id) != null){
                 eData.setCurrentFloor(elevatorData.get(id).getCurrentFloor());
             }
+            if (!"NF".equals(currentDataPacket.getFaultType())) {
+                handleElevatorFault(id, currentDataPacket.getFaultType());
+            }
+
         }
 
         elevatorData.put(id, eData);
@@ -264,10 +268,6 @@ public class Scheduler implements Runnable {
                         hasReachedInitialFloor = false; // Resetting the state for the next operation
                         currentState = SchedulerState.SENDING_REQUEST_TO_ELEVATOR;
                     }
-                    sendDataToElevator(currentDataPacket.toString(), elevatorId );
-                    hasReachedInitialFloor = false;
-                    currentState = SchedulerState.SENDING_REQUEST_TO_ELEVATOR;
-                    // System.out.println("Sending floor request to elevator, initial floor: " + initalFloor + "target floor: " + targetFloor);
                 }
 
                 case SENDING_REQUEST_TO_ELEVATOR -> {
