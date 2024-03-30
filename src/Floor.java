@@ -78,7 +78,7 @@ public class Floor implements Runnable{
         sendDataToScheduler(dataPacket, tempSendReceiveSocket);
         MainSystem.waitForAck(tempSendReceiveSocket);
         try {
-            Thread.sleep(1500);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             System.out.println("Thread interrupted: " + e.getMessage());
         }
@@ -110,7 +110,7 @@ public class Floor implements Runnable{
 
             DatagramPacket request = new DatagramPacket(sendBuffer, sendBuffer.length, MainSystem.address, MainSystem.Scheduler_Floor_Port_Number);
             DatagramPacket response = new DatagramPacket(returnBuffer, returnBuffer.length, MainSystem.address, MainSystem.Floor_Port_Number);
-            MainSystem.rpc_send(request, response);
+            MainSystem.rpc_send(request, response, -1);
             MainSystem.printReceivePacketData(response);
 
             MainSystem.sendAcknowledgment(response);
@@ -129,5 +129,11 @@ public class Floor implements Runnable{
     public void run() {
         readInputFile();
         System.exit(0);
+    }
+
+    public static void main(String[] args) {
+        Floor floor = new Floor();
+        Thread t = new Thread(floor);
+        t.start();
     }
 }

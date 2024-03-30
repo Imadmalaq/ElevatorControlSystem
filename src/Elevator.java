@@ -1,13 +1,10 @@
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 
-public class Elevator implements Runnable {
 
+public class Elevator extends Thread {
+
+    private int id;
     private DataPacket currentDataPacket;
     private ElevatorState currentState;
 
@@ -38,6 +35,10 @@ public class Elevator implements Runnable {
         this.currentState = state;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     /**
      * NEW ADDED CODE FOR ITERATION 3 BELOW
      */
@@ -50,11 +51,13 @@ public class Elevator implements Runnable {
 
             // Create a DatagramPacket for receiving data
 
-            sendBuffer = "Get Request Elevator".getBytes();
+            sendBuffer = (id + "Get Request Elevator").getBytes();
 
             DatagramPacket request = new DatagramPacket(sendBuffer, sendBuffer.length, MainSystem.address, MainSystem.Scheduler_Elevator_Port_Number);
-            DatagramPacket response = new DatagramPacket(returnBuffer, returnBuffer.length, MainSystem.address, MainSystem.Elevator_Port_Number);
-            MainSystem.rpc_send(request, response);
+            DatagramPacket response = new DatagramPacket(returnBuffer, returnBuffer.length, MainSystem.address, MainSystem.Elevator_Port_Number + id);
+            ;
+//                Thread.sleep(300);
+            MainSystem.rpc_send(request, response, id);
             MainSystem.printReceivePacketData(response);
 
             MainSystem.sendAcknowledgment(response);
@@ -83,10 +86,9 @@ public class Elevator implements Runnable {
     public void sendDataToScheduler(String data) {
         try {
             // Serialize the DataPacket object into a byte array - Need some adjustments
-            byte[] dataToSend = data.getBytes();
+            byte[] dataToSend = (this.id + data).getBytes();
 
             // Specify the IP address and port of the Scheduler
-//            InetAddress schedulerAddress = InetAddress.getByName("Scheduler_IP_Address");
             int schedulerPort = MainSystem.Scheduler_Elevator_Port_Number; // Need to choose an actual port number
 
             // Create a DatagramPacket for sending data
@@ -103,7 +105,6 @@ public class Elevator implements Runnable {
             e.printStackTrace();
         }
     }
-
 
 
     /**
@@ -212,7 +213,7 @@ public class Elevator implements Runnable {
                         //The below method will end our threads since the elevator is sending back the data
                         sendDataToScheduler("Elevator is now idle");
                         try {
-                            Thread.sleep(1300);
+                            Thread.sleep(2500);
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
@@ -232,5 +233,21 @@ public class Elevator implements Runnable {
                     break;
             }
         }
+    }
+
+    public static void main (String[] args) {
+        Elevator elevator0 =  new Elevator();
+        elevator0.setId(0);
+
+        Elevator elevator1 =  new Elevator();
+        elevator1.setId(1);
+
+//        Elevator elevator2 =  new Elevator();
+//        elevator0.setId(2);
+
+        elevator0.start();
+        elevator1.start();
+//        elevator2.start();
+
     }
 }

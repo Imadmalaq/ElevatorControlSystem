@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f5b9fadb-d1c9-404e-ac75-6e069ef719b2" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="f5b9fadb-d1c9-404e-ac75-6e069ef719b2" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -47,7 +45,7 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">{
-    &quot;keyToString&quot;: {
+  &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
@@ -64,35 +62,57 @@
     &quot;project.structure.side.proportion&quot;: &quot;0.2045977&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
-    }
-    }</component>
+  }
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\SYSC3303\SYSC3303Project\src" />
       <recent name="C:\SYSC3303\SYSC3303Project\src\main" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Compound.Project">
+    <configuration name="AScheduler" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Scheduler" />
+      <module name="SYSC3303Project" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BFloor" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Floor" />
+      <module name="SYSC3303Project" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CElevator" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Elevator" />
+      <module name="SYSC3303Project" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Project" type="CompoundRunConfigurationType">
+      <toRun name="AScheduler" type="Application" />
+      <toRun name="BFloor" type="Application" />
+      <toRun name="CElevator" type="Application" />
+      <method v="2" />
+    </configuration>
     <configuration name="SYSC3303Project" type="MavenRunConfiguration" factoryName="Maven" nameIsGenerated="true">
       <MavenSettings>
         <option name="myGeneralSettings" />
         <option name="myRunnerSettings" />
         <option name="myRunnerParameters">
           <MavenRunnerParameters>
-            <option name="cmdOptions" />
             <option name="profiles">
               <set />
             </option>
             <option name="goals">
               <list />
             </option>
-            <option name="multimoduleDir" />
             <option name="pomFileName" />
             <option name="profilesMap">
               <map />
-            </option>
-            <option name="projectsCmdOptionValues">
-              <list />
             </option>
             <option name="resolveToWorkspace" value="false" />
             <option name="workingDirPath" value="$PROJECT_DIR$" />
@@ -101,6 +121,13 @@
       </MavenSettings>
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Application.BFloor" />
+      <item itemvalue="Application.CElevator" />
+      <item itemvalue="Application.AScheduler" />
+      <item itemvalue="Compound.Project" />
+      <item itemvalue="Maven.SYSC3303Project" />
+    </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -118,7 +145,9 @@
       <workItem from="1708965636945" duration="621000" />
       <workItem from="1710431628512" duration="905000" />
       <workItem from="1710634625155" duration="1427000" />
-      <workItem from="1710640549887" duration="13602000" />
+      <workItem from="1710640549887" duration="16567000" />
+      <workItem from="1711557205313" duration="3175000" />
+      <workItem from="1711591164372" duration="11913000" />
     </task>
     <servers />
   </component>
@@ -147,5 +176,16 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/Elevator.java</url>
+          <line>213</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

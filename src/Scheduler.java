@@ -3,7 +3,9 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class Scheduler implements Runnable {
@@ -19,14 +21,18 @@ public class Scheduler implements Runnable {
     private String direction;
     private boolean testModeEnabled = false; // Flag to indicate if test mode is enabled
     private boolean stopAfterOneCycle = false; // For testing: Stop the scheduler after one cycle
+    public HashMap<Integer, ElevatorDataPacket> elevatorData;
+    private int numElevators;
 
 
     public enum SchedulerState {
         WAITING_FOR_REQUEST, FLOOR_REQUEST_RECEIVED, SENDING_REQUEST_TO_ELEVATOR, WAITING_FOR_ELEVATOR_RESPONSE, PROCESSING_ELEVATOR_RESPONSE
     }
 
-    public Scheduler() {
+    public Scheduler(int numElevators) {
         this.currentState = SchedulerState.WAITING_FOR_REQUEST;
+        elevatorData = new HashMap<>();
+        this.numElevators = numElevators;
     }
 
     public void enableTestMode() {
@@ -41,39 +47,8 @@ public class Scheduler implements Runnable {
         currentDataPacket = p;
     }
 
-    /**
-     * NEW ADDED CODE FOR ITERATION 3 BELOW
-     */
-//    public void listenForRequests() {
-//        DatagramSocket floorSocket, elevatorSocket = null;
-//        try {
-//            byte[] buffer = new byte[MainSystem.buffer_size]; // Adjust size as necessary
-//
-//            while (true) {
-//                DatagramPacket packet = getDataFromFloor();
-//                String data = new String(packet.getData(),0, packet.getLength());
-//                System.out.println("Sending ACK to floor\n");
-//                MainSystem.sendAcknowledgment(packet);
-//
-//
-//
-//
-//                // Deserialize the data from the received packet
-////                DataPacket receivedData = deserializeDataPacket(packet.getData());
-//
-//                // Process the received DataPacket
-////                if (receivedData != null) {
-////                    // Here, we would need to add logic to handle the received data,
-////                    System.out.println("Received request: " + receivedData.getFloor() + " " + receivedData.getDirection());
-////                }
-//            }
-//        } catch (Exception e) {
-//            System.out.println("Exception in listenForRequests: " + e.getMessage());
-//            e.printStackTrace();
-//        }
-//    }
-
     public void getDataFromElevator(){
+        System.out.println("Getting Data from Elevator\n");
         DatagramSocket elevatorSocket = null; // Use the port number the Elevator will listen on
         try {
             elevatorSocket = new DatagramSocket(MainSystem.Scheduler_Elevator_Port_Number);
@@ -92,31 +67,41 @@ public class Scheduler implements Runnable {
 
         MainSystem.printReceivePacketData(packet);
         // Check if elevator is sending a data packet
-        if (Floor.isValidDataPacket(new String(packet.getData(),0, packet.getLength()))){
-            currentDataPacket = Floor.processStringIntoDataPacket(new String(packet.getData(),0, packet.getLength()));
+        String packetData = new String(packet.getData(),0, packet.getLength());
+        int id = Integer.parseInt(packetData.substring(0,1));
+        packetData = packetData.substring(1);
+
+
+        ElevatorDataPacket eData = new ElevatorDataPacket(0, MainSystem.Elevator_Port_Number + id, id);
+
+        if (Floor.isValidDataPacket(packetData)){
+            currentDataPacket = Floor.processStringIntoDataPacket(packetData);
+            eData.setCurrentFloor(Integer.parseInt(currentDataPacket.getFloor()));
             System.out.println("Sending ACK to elevator\n");
             MainSystem.sendAcknowledgment(packet);
-        } else if (new String(packet.getData(),0, packet.getLength()).equals("Elevator is now idle")) {
+        } else if (packetData.equals("Elevator is now idle")) {
             System.out.println("Sending ACK to elevator\n");
+            eData.setCurrentFloor(elevatorData.get(id).getCurrentFloor());
             MainSystem.sendAcknowledgment(packet);
+        } else {
+            if (elevatorData.get(id) != null){
+                eData.setCurrentFloor(elevatorData.get(id).getCurrentFloor());
+            }
         }
+
+        elevatorData.put(id, eData);
         elevatorSocket.close();
 
     }
 
-    public void sendDataToElevator(String data) {
+    public void sendDataToElevator(String data, int elevatorID) {
         try {
             // Serialize the DataPacket object into a byte array
             byte[] packetData = new byte[MainSystem.buffer_size];
             DatagramSocket socket = new DatagramSocket();
             packetData = data.getBytes();
-            DatagramPacket elevatorPacket = new DatagramPacket(packetData, packetData.length, MainSystem.address, MainSystem.Elevator_Port_Number);
+            DatagramPacket elevatorPacket = new DatagramPacket(packetData, packetData.length, MainSystem.address, MainSystem.Elevator_Port_Number + elevatorID);
             MainSystem.printSendPacketData(elevatorPacket);
-
-            // Specify the IP address and port of the target Elevator
-//            InetAddress address = InetAddress.getByName(elevatorAddress);
-
-            // Create a DatagramPacket for sending data
 
             // Create a DatagramSocket for sending the packet
             socket.send(elevatorPacket);
@@ -197,36 +182,24 @@ public class Scheduler implements Runnable {
         this.direction = currentDataPacket.getDirection();
     }
 
-    /* OLD CODE BELOW
-    public void sendDataToElevator() {
-        System.out.println("Sending Data to elevator from scheduler: " + currentDataPacket.getTime() + " " + currentDataPacket.getFloor() + " " + currentDataPacket.getDirection() + " " + currentDataPacket.getCarButton());
-        mainSystem.updateSchedulerAndElevatorData(currentDataPacket);
-        if (!testModeEnabled) {
-            simulateDelay(750);
-        }
-    }
+    public int pickElevator (int startingFloor){
+         ArrayList<ElevatorDataPacket> values = new ArrayList<>(elevatorData.values());
 
-    public void getDataFromElevator() {
-        currentDataPacket = mainSystem.getSchedulerAndElevatorData();
-        System.out.println("Scheduler: received that elevator reached floor " + currentFloor);
-    }
+         ElevatorDataPacket closestElevator = values.get(0);
+         int closestDistance = Math.abs(startingFloor - closestElevator.getCurrentFloor());
 
-    public void sendDataToFloor() {
-        System.out.println("Sending Data to floor from scheduler: " + currentDataPacket.getTime() + " " + currentDataPacket.getFloor() + " " + currentDataPacket.getDirection() + " " + currentDataPacket.getCarButton());
-        mainSystem.updateSchedulerAndFloorData(currentDataPacket);
-        if (!testModeEnabled) {
-            simulateDelay(750);
-        }
-    }
+         for (ElevatorDataPacket e : values) {
+            int distance = Math.abs(startingFloor - e.getCurrentFloor());
+            if (distance < closestDistance){
+              closestElevator = e;
+              closestDistance = distance;
+           }
+         }
+         System.out.println("Picking Elevator ID: " + closestElevator.getId() + " on floor " +
+                closestElevator.getCurrentFloor() + " for floor " + startingFloor + "\n");
+         return closestElevator.getId();
 
-    private void simulateDelay(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            System.out.println("Thread interrupted: " + e.getMessage());
-        }
     }
-     */
 
     @Override
     public void run() {
@@ -248,8 +221,20 @@ public class Scheduler implements Runnable {
                 case FLOOR_REQUEST_RECEIVED -> {
 
                     // Send the floor request to the elevator
-                    getDataFromElevator();
-                    sendDataToElevator(currentDataPacket.toString());
+                    if(elevatorData.isEmpty()){
+                        for (int i = 0 ; i < numElevators; i++){
+                            getDataFromElevator();
+                        }
+                    } else {
+                        getDataFromElevator();
+                    }
+                    int id = pickElevator(initialFloor);
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    sendDataToElevator(currentDataPacket.toString(), id );
                     currentState = SchedulerState.SENDING_REQUEST_TO_ELEVATOR;
                     // System.out.println("Sending floor request to elevator, initial floor: " + initalFloor + "target floor: " + targetFloor);
                 }
@@ -292,5 +277,11 @@ public class Scheduler implements Runnable {
                 break; // Exit the loop after one cycle for testing purposes
             }
         }
+    }
+
+    public static void main(String[] args) {
+        Scheduler scheduler = new Scheduler(2);
+        Thread schedulerThread = new Thread(scheduler);
+        schedulerThread.start();
     }
 }
