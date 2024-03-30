@@ -36,7 +36,7 @@ class SchedulerTest {
     void sendDataToElevator() {
         DataPacket packetToSend = new DataPacket("11:00", "1", "UP", "3");
         scheduler.setDataPacket(packetToSend);
-        scheduler.sendDataToElevator(packetToSend.toString());
+        scheduler.sendDataToElevator(packetToSend.toString(), 0);
     }
 
     //test for getting data from the floor class using mock packets behaviour
