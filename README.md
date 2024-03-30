@@ -1,12 +1,15 @@
-# Elevator Control System - Iteration 3
+# Elevator Control System - Iteration 4
 
 ## Overview
 
 This project iteration was completed by Group 2 for SYSC 3303 - Section A3. It involves designing and implementing a multi-threaded elevator control system and simulator. The system simulates the operations of an elevator system, including floor buttons, elevator buttons, doors, and simulated passengers. The project aims to simulate real-world operations, including the movement of elevators between floors in real-time and handling passenger traffic.
 
-## Iteration 3 Updates
+## Iteration 4 Updates
 
-- Incorporated multiple elevator cars and added support to distribute the system across different computers to simulate a more realistic, distributed environment.
+- Fault Detection: Implemented fault detection for stuck elevators (FT - Floor Timer Fault), doors not opening/closing properly (DOF - Door Open Fault), and a general No Fault (NF) condition for normal operations.
+- ElevatorDataPacket Class: Introduced to enhance communication between the Elevator and Scheduler subsystems, enabling the transfer of elevator status and fault information.
+- Distributed System Simulation: Further refined the system's distribution across different computers, emphasizing fault tolerance in a distributed environment.
+
 
 ## Components and Files
 
@@ -21,6 +24,7 @@ This project iteration was completed by Group 2 for SYSC 3303 - Section A3. It i
   packets from the Scheduler, processes them based on the state machine, and sends back the response.
 - **DataPacket (DataPacket.java)**: Represents the data structure used to pass information between the Floor, Scheduler,
   and Elevator subsystems.
+- **ElevatorDataPacket (ElevatorDataPacket.java)**: New class facilitating the transfer of detailed elevator status and fault information to the Scheduler.
 
 ## Test Files
 
@@ -42,13 +46,11 @@ This project iteration was completed by Group 2 for SYSC 3303 - Section A3. It i
 
 ## Networking
 
-The subsystems will ultimately communicate using DatagramSocket objects, allowing the components to run on separate
-computers. Ensure that your code supports this configuration for future iterations.
+The subsystems will ultimately communicate using DatagramSocket objects, allowing the components to run on separate computers. Ensure that your code supports this configuration for future iterations.
 
 ## Real-time Operation
 
-The system should simulate real-time operations of elevators. Elevators take time to move from floor to floor, and this
-behaviour should be accurately represented in the simulation.
+The system should simulate real-time operations of elevators. Elevators take time to move from floor to floor, and this behaviour should be accurately represented in the simulation.
 
 ## Setup Instructions
 
@@ -64,16 +66,24 @@ behaviour should be accurately represented in the simulation.
 4. **Build the Project**
    - Use the 'Build' menu to compile the project.
 
-5. **Run MainSystem**
-   - Navigate to 'MainSystem.java' in the Project view.
-   - Right-click on the file and select 'Run 'MainSystem.main()'' to start the simulation.
+5. **Run Scheduler**
+   - Navigate to 'Scheduler.java' in the Project view.
+   - Right-click on the file and select 'Run 'Scheduler.main()'' to start the scheduler.
+
+6. **Run Floor**
+   - Navigate to 'Floor.java' in the Project view.
+   - Right-click on the file and select 'Run 'Floor.main()'' to start the floor.
+
+7. **Run Elevator**
+   - Navigate to 'Elevator.java' in the Project view.
+   - Right-click on the file and select 'Run 'Elevator.main()'' to start the scheduler.
 
 ## Input File Format
 
 The input file should contain lines with the following format:
 
 ```
-Time (hh:mm:ss.mmm) Floor (n) Floor Button (Up/Down) Car Button (n)
+Time (hh:mm:ss.mmm) Floor (n) Floor Button (Up/Down) Car Button (n) Fault Code (FT/DOF/NF)
 ```
 
 Each line represents an event where a passenger arrives at a floor at a specific time, presses a floor button to request
@@ -91,20 +101,17 @@ This project was created by 5 authors:
 
 ## Breakdown of Work
 
-Kieran Rourke: supported functionality for the Elevator, DataPacket, Scheduler<br>
-Imad Mohamed: supported the functionality for the Floor, Elevator, DataPacket, Scheduler and state machine additions.<br>
-Kyle: implemented the functionality for the MainSystem and supported the Floor, Elevator, DataPacket, and Scheduler classes, helped with state machine additions.<br>
-Humam: Testing work<br>
-Michael: created UML Diagrams, state machine diagrams, and supported with scheduler and elevator functionalities<br>
+Kieran Rourke: supported functionality for the Elevator, DataPacket, Scheduler. Extended project capabilities to support multiple elevators cars and supported implementation of fault detection capabilities.<br>
+Imad Mohamed: supported the functionality for the Floor, Elevator, DataPacket, Scheduler and state machine additions. Supported implementation of fault detection capabilities.<br>
+Kyle: implemented the functionality for the MainSystem and supported the Floor, Elevator, DataPacket, and Scheduler classes, helped with state machine additions. Supported addition of fault detection capabilities.<br>
+Humam: Testing work. Supported implementation of fault detection capabilities.<br>
+Michael: created UML Diagrams, state machine diagrams, and supported the addition of fault detection capabilities.<br>
 
 ## Future Iterations
 
-- **Iteration 4**: Introduce error detection and correction mechanisms to handle faults like stuck elevators or doors
-  not opening/closing properly.
 - **Iteration 5**: Implement capacity limits for each elevator car and develop a user interface to visually represent
   the position of all elevators in the system at any given time.
 
 ## Notes
 
-- Ensure that the input file (default name: "input.txt") is present in the same directory as the executable files before
-  running the MainSystem.
+- Ensure that the input file (default name: "input.txt") is present in the same directory as the executable files before running the MainSystem.
