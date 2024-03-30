@@ -1,7 +1,7 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DataPacketTest {
-    DataPacket testPacket = new DataPacket("Fifteen","Fifteen","up","testButton");
+    DataPacket testPacket = new DataPacket("Fifteen","Fifteen","up","testButton", "NF");
     @org.junit.jupiter.api.Test
     void getTime() {
         assertEquals(testPacket.getTime(),"Fifteen");
