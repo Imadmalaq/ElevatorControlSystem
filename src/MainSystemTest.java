@@ -16,7 +16,7 @@ class MainSystemTest {
         // Test both setting and getting scheduler and elevator data to ensure they work as expected.
 
         // Arrange
-        DataPacket expectedPacket = new DataPacket("10:00", "3", "UP", "5");
+        DataPacket expectedPacket = new DataPacket("10:00", "3", "UP", "5", "NF");
 
         // Act
 

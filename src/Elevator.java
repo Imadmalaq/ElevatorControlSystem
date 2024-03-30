@@ -286,7 +286,7 @@ public class Elevator extends Thread {
 
         elevator0.start();
         elevator1.start();
-        elevator2.start();
+//        elevator2.start();
 
     }
 }
