@@ -291,12 +291,16 @@ public class Elevator extends Thread {
         Elevator elevator1 =  new Elevator();
         elevator1.setId(1);
 
-//        Elevator elevator2 =  new Elevator();
-//        elevator0.setId(2);
+        Elevator elevator2 =  new Elevator();
+        elevator2.setId(2);
+
+        Elevator elevator3 =  new Elevator();
+        elevator3.setId(3);
 
         elevator0.start();
         elevator1.start();
-//        elevator2.start();
+        elevator2.start();
+        elevator3.start();
 
     }
 }

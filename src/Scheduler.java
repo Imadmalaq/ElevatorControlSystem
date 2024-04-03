@@ -355,7 +355,7 @@ public class Scheduler implements Runnable {
     }
 
     public static void main(String[] args) {
-        Scheduler scheduler = new Scheduler(2);
+        Scheduler scheduler = new Scheduler(4);
         Thread schedulerThread = new Thread(scheduler);
         schedulerThread.start();
     }

@@ -80,7 +80,7 @@ public class Floor implements Runnable{
         sendDataToScheduler(dataPacket, tempSendReceiveSocket);
         MainSystem.waitForAck(tempSendReceiveSocket);
         try {
-            Thread.sleep(3000);
+            Thread.sleep(3200);
         } catch (InterruptedException e) {
             System.out.println("Thread interrupted: " + e.getMessage());
         }
