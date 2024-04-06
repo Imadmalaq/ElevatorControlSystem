@@ -1,14 +1,14 @@
-# Elevator Control System - Iteration 4
+# Elevator Control System - Iteration 5
 
 ## Overview
 
-This project iteration was completed by Group 2 for SYSC 3303 - Section A3. It involves designing and implementing a multi-threaded elevator control system and simulator. The system simulates the operations of an elevator system, including floor buttons, elevator buttons, doors, and simulated passengers. The project aims to simulate real-world operations, including the movement of elevators between floors in real-time and handling passenger traffic.
+This project iteration was completed by Group 2 for SYSC 3303 - Section A3. It involves designing and implementing a multi-threaded elevator control system and simulator. The system simulates the operations of an elevator system, including floor buttons, elevator buttons, doors, and simulated passengers. We have introduced new capacity limits for elevator cars and developed a graphical user interface (GUI) to visually represent the elevator system's status in real-time. The system continues to simulate the complex dynamics of a real-world elevator system, including floor and elevator buttons, door mechanisms, and the movement of simulated passengers.
 
-## Iteration 4 Updates
+## Iteration 5 Updates
 
-- Fault Detection: Implemented fault detection for stuck elevators (FT - Floor Timer Fault), doors not opening/closing properly (DOF - Door Open Fault), and a general No Fault (NF) condition for normal operations.
-- ElevatorDataPacket Class: Introduced to enhance communication between the Elevator and Scheduler subsystems, enabling the transfer of elevator status and fault information.
-- Distributed System Simulation: Further refined the system's distribution across different computers, emphasizing fault tolerance in a distributed environment.
+- Capacity Limits: Introduced capacity limits for each elevator car to simulate real-world constraints on the number of passengers each elevator can carry.
+- Graphical User Interface (GUI): Developed a GUI to provide a real-time visual representation of elevator positions, operational status, and fault conditions. This interface enhances user interaction and system monitoring.
+- Fault Handling Enhancements: Refined fault detection and handling mechanisms for stuck elevators (FT - Floor Timer Fault), malfunctioning doors (DOF - Door Open Fault), and normal operations (NF - No Fault condition), integrating these features with the GUI for immediate feedback.
 
 
 ## Components and Files
@@ -24,7 +24,8 @@ This project iteration was completed by Group 2 for SYSC 3303 - Section A3. It i
   packets from the Scheduler, processes them based on the state machine, and sends back the response.
 - **DataPacket (DataPacket.java)**: Represents the data structure used to pass information between the Floor, Scheduler,
   and Elevator subsystems.
-- **ElevatorDataPacket (ElevatorDataPacket.java)**: New class facilitating the transfer of detailed elevator status and fault information to the Scheduler.
+- **ElevatorDataPacket (ElevatorDataPacket.java)**: Class facilitating the transfer of detailed elevator status and fault information to the Scheduler.
+- **Iterface (Interface.java)**: Component for visualizing the elevator system status in real-time, including elevator positions, operational states, and faults.
 
 ## Test Files
 
@@ -101,16 +102,12 @@ This project was created by 5 authors:
 
 ## Breakdown of Work
 
-Kieran Rourke: supported functionality for the Elevator, DataPacket, Scheduler. Extended project capabilities to support multiple elevators cars and supported implementation of fault detection capabilities.<br>
+Kieran Rourke: supported functionality for the Elevator, DataPacket, Scheduler. Extended project capabilities to support multiple elevators cars and supported implementation of fault detection capabilities. supported the addition of Interface functionality.<br>
 Imad Mohamed: supported the functionality for the Floor, Elevator, DataPacket, Scheduler and state machine additions. Supported implementation of fault detection capabilities.<br>
 Kyle: implemented the functionality for the MainSystem and supported the Floor, Elevator, DataPacket, and Scheduler classes, helped with state machine additions. Supported addition of fault detection capabilities.<br>
 Humam: Testing work. Supported implementation of fault detection capabilities. Fixed Code based on test results<br>
 Michael: created UML Diagrams, state machine diagrams, and supported the addition of fault detection capabilities.<br>
 
-## Future Iterations
-
-- **Iteration 5**: Implement capacity limits for each elevator car and develop a user interface to visually represent
-  the position of all elevators in the system at any given time.
 
 ## Notes
 
