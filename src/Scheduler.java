@@ -390,7 +390,7 @@ public class Scheduler implements Runnable {
             case "DOF": // Door Open Fault
                 outputData = "Warning: Elevator " + elevatorId + "'s door is stuck open.";
                 System.out.println(outputData);
-                elevatorSystemInterface.addText("<font color='yellow'>" + outputData + "</font>");
+                elevatorSystemInterface.addText("<font color='#ffcc00'>" + outputData + "</font>");
                 currentDataPacket = new DataPacket(currentDataPacket.getTime(), currentDataPacket.getFloor(), currentDataPacket.getDirection(),
                     currentDataPacket.getCarButton(), "NF");
                 // Same here. We can deactivate the elevator in the system
