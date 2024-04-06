@@ -28,7 +28,7 @@ class FloorTest {
     //testing valid input is processed correctly using a mock text
     @Test
     void processInputData_ValidInput() {
-        String inputData = "10:00 5 UP 3";
+        String inputData = "10:00 5 UP 3 NF";
         DataPacket expected = new DataPacket("10:00", "5", "UP", "3", "NF");
 
         DataPacket result = Floor.processStringIntoDataPacket(inputData);
@@ -51,7 +51,7 @@ class FloorTest {
     //testing valid input
     @Test
     void handleDataPacket_ValidData() {
-        String inputData = "10:00 5 UP 3";
+        String inputData = "10:00 5 UP 3 NF";
         DataPacket expected = new DataPacket("10:00", "5", "UP", "3", "NF");
         DataPacket result = Floor.processStringIntoDataPacket(inputData);
         assertEquals(expected,result);
