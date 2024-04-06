@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -24,6 +25,13 @@ public class Scheduler implements Runnable {
     private int numElevators;
     boolean hasReachedInitialFloor = false;
     boolean isCriticalFault = false;
+    private boolean verbose = false;
+
+    public Interface elevatorSystemInterface = Interface.getInstance();
+
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
+    }
 
 
     public enum SchedulerState {
@@ -54,7 +62,9 @@ public class Scheduler implements Runnable {
      */
     public boolean getDataFromElevator(){
         boolean isIdle = false;
-        System.out.println("Getting Data from Elevator\n");
+        if (verbose){
+            System.out.println("Getting Data from Elevator\n");
+        }
         DatagramSocket elevatorSocket = null; // Use the port number the Elevator will listen on
         try {
             elevatorSocket = new DatagramSocket(MainSystem.Scheduler_Elevator_Port_Number);
@@ -71,7 +81,10 @@ public class Scheduler implements Runnable {
             throw new RuntimeException(e);
         }
 
-        MainSystem.printReceivePacketData(packet);
+        if (verbose){
+
+            MainSystem.printReceivePacketData(packet);
+        }
         // Check if elevator is sending a data packet
         String packetData = new String(packet.getData(),0, packet.getLength());
         int id = Integer.parseInt(packetData.substring(0,1));
@@ -83,7 +96,10 @@ public class Scheduler implements Runnable {
         if (Floor.isValidDataPacket(packetData)){
             currentDataPacket = Floor.processStringIntoDataPacket(packetData);
             eData.setCurrentFloor(Integer.parseInt(currentDataPacket.getFloor()));
-            System.out.println("Sending ACK to elevator\n");
+            elevatorSystemInterface.addText("Received data that elevator " + id + " is at current floor " + eData.getCurrentFloor());
+            if (verbose){
+                System.out.println("Sending ACK to elevator\n");
+            }
             MainSystem.sendAcknowledgment(packet);
 
             if (!"NF".equals(currentDataPacket.getFaultType())) {
@@ -91,7 +107,11 @@ public class Scheduler implements Runnable {
                 return false; // Returning false since the elevator might not be considered 'idle' in case of a fault
             }
         } else if (packetData.equals("Elevator is now idle")) {
-            System.out.println("Sending ACK to elevator\n");
+            if (verbose) {
+                System.out.println("Sending ACK to elevator\n");
+            }
+            elevatorSystemInterface.addText("<font color='green'>Elevator " + id + " has reached its destination of floor "
+                    + targetFloor + " and is now idle </font> <br>");
             eData.setCurrentFloor(elevatorData.get(id).getCurrentFloor());
             MainSystem.sendAcknowledgment(packet);
             isIdle = true;
@@ -102,6 +122,13 @@ public class Scheduler implements Runnable {
             if (!"NF".equals(currentDataPacket.getFaultType()) && !packetData.equals(" Get Request Elevator")) {
                 handleElevatorFault(id, currentDataPacket.getFaultType());
             }
+            if ("Transient Fault Detected".equals(packetData)){
+                MainSystem.sendAcknowledgment(packet);
+            } else if ("Fault Fixed".equals(packetData)){
+                elevatorSystemInterface.addText("<font color='green'>Elevator " + id + " has fixed the fault and is now operational </font> <br>");
+                MainSystem.sendAcknowledgment(packet);
+            }
+
 
         }
 
@@ -120,7 +147,9 @@ public class Scheduler implements Runnable {
             DatagramSocket socket = new DatagramSocket();
             packetData = data.getBytes();
             DatagramPacket elevatorPacket = new DatagramPacket(packetData, packetData.length, MainSystem.address, MainSystem.Elevator_Port_Number + elevatorID);
-            MainSystem.printSendPacketData(elevatorPacket);
+            if (verbose){
+                MainSystem.printSendPacketData(elevatorPacket);
+            }
 
             // Create a DatagramSocket for sending the packet
             socket.send(elevatorPacket);
@@ -147,15 +176,21 @@ public class Scheduler implements Runnable {
             throw new RuntimeException(e);
         }
 
-        MainSystem.printReceivePacketData(packet);
+        if (verbose){
+            MainSystem.printReceivePacketData(packet);
+        }
         floorSocket.close();
         if (!Floor.isValidDataPacket(new String(packet.getData(),0, packet.getLength()))){ //Get Request
             return;
         }
         parseFloorData(new String(packet.getData(),0, packet.getLength()));
 
+        elevatorSystemInterface.addText("Received request from floor " + initialFloor + " to floor " + targetFloor + " in direction " + direction + "\n");
 
-        System.out.println("Sending ACK to floor\n");
+
+        if (verbose){
+            System.out.println("Sending ACK to floor\n");
+        }
         MainSystem.sendAcknowledgment(packet);
     }
 
@@ -170,7 +205,9 @@ public class Scheduler implements Runnable {
         }
         packetData = data.getBytes();
         DatagramPacket floorPacket = new DatagramPacket(packetData, packetData.length, MainSystem.address, MainSystem.Floor_Port_Number);
-        MainSystem.printSendPacketData(floorPacket);
+        if (verbose){
+            MainSystem.printSendPacketData(floorPacket);
+        }
         try {
             socket.send(floorPacket);
         } catch (IOException e) {
@@ -219,8 +256,10 @@ public class Scheduler implements Runnable {
               closestDistance = distance;
            }
          }
-         System.out.println("Picking Elevator ID: " + closestElevator.getId() + " currently on floor " +
-                closestElevator.getCurrentFloor() + " to initial floor " + startingFloor + " with target floor " + targetFloor + "\n");
+         String outputData = "Picking Elevator ID: " + closestElevator.getId() + " currently on floor " +
+                 closestElevator.getCurrentFloor() + " to initial floor " + startingFloor + " with target floor " + targetFloor + "\n";
+         System.out.println(outputData);
+         elevatorSystemInterface.addText(outputData);
          return closestElevator.getId();
 
     }
@@ -312,7 +351,9 @@ public class Scheduler implements Runnable {
                     }
 
                     if (elevatorId == -1) {
-                        System.out.println("Currently, all elevators are under maintenance no one to handle the request.");
+                        String outputText = "Currently, all elevators are under maintenance no one to handle the request.";
+                        System.out.println(outputText);
+                        elevatorSystemInterface.addText(outputText);
                         // Here, you might want to implement logic to queue the request or retry after some time
                     } else {
                         // If an elevator is successfully picked, send the request to that elevator
@@ -332,17 +373,26 @@ public class Scheduler implements Runnable {
 
     private void handleElevatorFault(int elevatorId, String faultType) {
         // This only Log the fault for now
-        System.out.println("Elevator " + elevatorId + " reported a fault: " + faultType);
+        String outputData = "Elevator " + elevatorId + " reported a fault: " + faultType + "\n";
+        System.out.println(outputData);
+        elevatorSystemInterface.addText("<font color='red'>" + outputData +" </font>");
+
 
         switch (faultType) {
             case "FT": // Floor Timer fault
-                System.out.println("Critical: Elevator " + elevatorId + " is stuck or experiencing significant delays.\n");
+                outputData = "Critical: Elevator " + elevatorId + " is stuck or experiencing significant delays.\n";
+                System.out.println(outputData);
+                elevatorSystemInterface.addText("<font color='red'>" + outputData + "</font><br>");
                 isCriticalFault = true;
                 elevatorData.remove(elevatorId);
                 // Here we can deactivate the elevator in the system until maintenance has resolved the issue
                 break;
             case "DOF": // Door Open Fault
-                System.out.println("Warning: Elevator " + elevatorId + "'s door is stuck open.");
+                outputData = "Warning: Elevator " + elevatorId + "'s door is stuck open.";
+                System.out.println(outputData);
+                elevatorSystemInterface.addText("<font color='yellow'>" + outputData + "</font>");
+                currentDataPacket = new DataPacket(currentDataPacket.getTime(), currentDataPacket.getFloor(), currentDataPacket.getDirection(),
+                    currentDataPacket.getCarButton(), "NF");
                 // Same here. We can deactivate the elevator in the system
                 break;
             default:
@@ -356,6 +406,7 @@ public class Scheduler implements Runnable {
 
     public static void main(String[] args) {
         Scheduler scheduler = new Scheduler(4);
+        scheduler.setVerbose(true);
         Thread schedulerThread = new Thread(scheduler);
         schedulerThread.start();
     }

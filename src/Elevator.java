@@ -210,11 +210,15 @@ public class Elevator extends Thread {
                         System.out.println("Door opening at floor: " + currentFloor);
                         currentState = ElevatorState.DOOR_OPENING;
                     } else {
-                        if (currentFloor == initialFloor){
-                            hasReachedInitialFloor = true;
+                        if(currentFloor == initialFloor) {
+                            System.out.println("Door opening at floor: " + currentFloor);
+                            currentState = ElevatorState.DOOR_OPENING;
+                        } else {
+                            handleIncrementingFloor();
+                            System.out.println("Moving to floor test: " + currentFloor);
+                            currentState = ElevatorState.MOVING;
+
                         }
-                        handleIncrementingFloor();
-                        currentState = ElevatorState.MOVING;
                     }
                     break;
                 case DOOR_OPENING:
@@ -240,6 +244,7 @@ public class Elevator extends Thread {
                         currentState = ElevatorState.IDLE;
                     }else{
 
+                        hasReachedInitialFloor = true;
                         //This handles if the direction is up or down
                         handleIncrementingFloor();
                         //If the elevator has more floors to climb or drop, it moves to the floor, and changes states to MOVING
@@ -268,11 +273,15 @@ public class Elevator extends Thread {
                 sendDataToScheduler("Elevator " + id + " FAULT: Floor timer fault. Elevator shutdown.");
                 break;
             case "DOF": // Door Open Fault (Transient Fault)
-                System.out.println("Transient Fault Detected: Elevator " + id + " door is stuck open. Attempting to fix...");
+                String output = "Transient Fault Detected: Elevator " + id + " door is stuck open. Attempting to fix...";
+                System.out.println(output);
+                sendDataToScheduler("Transient Fault Detected");
                 // Simulate fixing the fault
                 try {
                     Thread.sleep(1000); // Wait for 1 second to simulate fixing the fault
-                    System.out.println("Fault Fixed: Elevator " + id + " door issue resolved. Resuming operations.");
+                    output = "Fault Fixed: Elevator " + id + " door issue resolved. Resuming operations.";
+                    System.out.println(output);
+                    sendDataToScheduler("Fault Fixed");
                     // No state change needed, just resume operations
                 } catch (InterruptedException e) {
                     System.out.println("Error while handling transient fault for Elevator " + id);

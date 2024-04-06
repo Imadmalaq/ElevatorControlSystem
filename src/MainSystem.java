@@ -11,6 +11,10 @@ public class MainSystem {
 	 public static int Elevator_Port_Number = 96;
 	 public static int Floor_Port_Number = 420;
 	 public static InetAddress address;
+	 public static String RESET = "\u001B[0m";
+	 public static String RED_TEXT = "\u001B[31m";
+	 public static String GREEN_TEXT = "\u001B[32m";
+	 public static String YELLOW_TEXT = "\u001B[33m";
 
 	 static {
 		  try {
