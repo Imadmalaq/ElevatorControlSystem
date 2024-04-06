@@ -106,7 +106,7 @@ Kieran Rourke: supported functionality for the Elevator, DataPacket, Scheduler. 
 Imad Mohamed: supported the functionality for the Floor, Elevator, DataPacket, Scheduler and state machine additions. Supported implementation of fault detection capabilities.<br>
 Kyle: implemented the functionality for the MainSystem and supported the Floor, Elevator, DataPacket, and Scheduler classes, helped with state machine additions. Supported addition of fault detection capabilities.<br>
 Humam: Testing work. Supported implementation of fault detection capabilities. Fixed Code based on test results<br>
-Michael: created UML Diagrams, state machine diagrams, and supported the addition of fault detection capabilities.<br>
+Michael: created UML Diagrams, state machine diagrams, timing diagrams, and supported the addition of fault detection capabilities.<br>
 
 
 ## Notes
