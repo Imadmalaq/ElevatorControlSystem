@@ -1,24 +1,24 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class SchedulerTest {
 
-    @Mock
-    private MainSystem mainSystem; // Mock the MainSystem
+    private Scheduler scheduler; // Changed from @InjectMocks to regular declaration
 
-    @InjectMocks
-    private Scheduler scheduler; // Injects mocked MainSystem into Scheduler
+    @Mock
+    private MainSystem mainSystem;
 
     @BeforeEach
     void setUp() {
+        // Manually create an instance of Scheduler with a mock or preset number of elevators
+        scheduler = new Scheduler(3);
+
     }
 
     //A simple test that create a packet and checks that the elevators data is correct with it
@@ -30,13 +30,13 @@ class SchedulerTest {
         assertEquals(expectedPacket, resultPacket, "The data packet should match the expected packet.");
     }
 
-
     //Test to ensure that data can be sent correctly to the elevator
     @Test
     void sendDataToElevator() {
         DataPacket packetToSend = new DataPacket("11:00", "1", "UP", "3", "NF");
         scheduler.setDataPacket(packetToSend);
         scheduler.sendDataToElevator(packetToSend.toString(), 0);
+
     }
 
     //test for getting data from the floor class using mock packets behaviour
@@ -47,7 +47,6 @@ class SchedulerTest {
         DataPacket resultPacket = scheduler.getCurrentDataPacket();
         assertEquals(expectedPacket, resultPacket, "The data packet should match the expected packet.");
     }
-
 
     //testing that the data can be sent properly
     @Test
