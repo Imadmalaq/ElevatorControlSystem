@@ -7,6 +7,7 @@ import java.time.temporal.ChronoUnit;
 public class Interface {
 	 JFrame frame = new JFrame("Interface");
 	 JLabel label = new JLabel();
+	 JScrollPane scrollPane;
 	 String currentText = "";
 
 	 private static Interface instance;
@@ -20,7 +21,7 @@ public class Interface {
 
 
 		  label.setVerticalAlignment(JLabel.TOP);
-		  JScrollPane scrollPane = new JScrollPane(label);
+		  scrollPane = new JScrollPane(label);
 		  scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
 		  // Add the label to the frame
@@ -50,6 +51,10 @@ public class Interface {
 					 .toString();
 		  currentText += "<br>" + "Time:" + time + " " + newText;
 		  label.setText("<html>" + currentText + "</html>");
+
+		  // Adjust the viewport to scroll to the bottom
+		  JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
+		  verticalScrollBar.setValue(verticalScrollBar.getMaximum());
 
 
 		  frame.revalidate();
