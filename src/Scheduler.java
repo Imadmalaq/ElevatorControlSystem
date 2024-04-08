@@ -97,6 +97,19 @@ public class Scheduler implements Runnable {
             currentDataPacket = Floor.processStringIntoDataPacket(packetData);
             eData.setCurrentFloor(Integer.parseInt(currentDataPacket.getFloor()));
             elevatorSystemInterface.addText("Received data that elevator " + id + " is at current floor " + eData.getCurrentFloor());
+            if (eData.getCurrentFloor() == initialFloor) {
+                elevatorSystemInterface.addText("Elevator " + id + " Door Opening at floor: "
+                        + currentFloor);
+                elevatorSystemInterface.addText("Elevator " + id + " Door Closing at floor: "
+                        + currentFloor);
+                hasReachedInitialFloor = true;
+            }
+            if (eData.getCurrentFloor() == targetFloor && hasReachedInitialFloor) {
+                elevatorSystemInterface.addText("Elevator " + id + " Door Opening at floor: "
+                        + targetFloor);
+                elevatorSystemInterface.addText("Elevator " + id + " Door Closing at floor: "
+                        + eData.getCurrentFloor());
+            }
             if (verbose){
                 System.out.println("Sending ACK to elevator\n");
             }

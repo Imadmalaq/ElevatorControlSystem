@@ -17,6 +17,7 @@ public class Elevator extends Thread {
 
     private boolean hasReachedInitialFloor = false;
 
+
     public enum ElevatorState {
         IDLE, MOVING, NOTIFY_SCHEDULER, DOOR_OPENING, DOOR_CLOSING, FAULT
     }
