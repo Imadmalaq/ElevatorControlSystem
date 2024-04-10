@@ -1,5 +1,4 @@
 public enum ElevatorState {
-
     IDLE,
     MOVING,
     NOTIFY_SCHEDULER,

@@ -4,20 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f5b9fadb-d1c9-404e-ac75-6e069ef719b2" name="Changes" comment="">
+    <list default="true" id="f5b9fadb-d1c9-404e-ac75-6e069ef719b2" name="Changes" comment="Added Javadoc comments where applicable">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/DataPacket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/DataPacket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/DataPacketTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/DataPacketTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Elevator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Elevator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ElevatorDataPacket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ElevatorDataPacket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ElevatorTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ElevatorTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Floor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Floor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FloorTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FloorTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Interface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Interface.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MainSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MainSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MainSystemTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MainSystemTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Scheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Scheduler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/SchedulerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/SchedulerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/ElevatorState" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/ElevatorState" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,7 +60,9 @@
     "Application.CElevator.executor": "Run",
     "JUnit.DataPacketTest.executor": "Run",
     "JUnit.ElevatorTest.executor": "Run",
+    "JUnit.FloorTest.executor": "Run",
     "JUnit.MainSystemTest.executor": "Run",
+    "JUnit.SchedulerTest.executor": "Run",
     "Maven.SYSC3303Project [org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file].executor": "Run",
     "Maven.SYSC3303Project.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
@@ -194,8 +185,17 @@
       <workItem from="1711591164372" duration="11913000" />
       <workItem from="1711836411443" duration="2471000" />
       <workItem from="1712439933080" duration="375000" />
-      <workItem from="1712782219290" duration="2487000" />
+      <workItem from="1712782219290" duration="3260000" />
     </task>
+    <task id="LOCAL-00001" summary="Added Javadoc comments where applicable">
+      <option name="closed" value="true" />
+      <created>1712784829315</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1712784829315</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -223,5 +223,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Added Javadoc comments where applicable" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added Javadoc comments where applicable" />
   </component>
 </project>

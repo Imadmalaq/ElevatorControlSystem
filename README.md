@@ -10,6 +10,9 @@ This project iteration was completed by Group 2 for SYSC 3303 - Section A3. It i
 - Graphical User Interface (GUI): Developed a GUI to provide a real-time visual representation of elevator positions, operational status, and fault conditions. This interface enhances user interaction and system monitoring.
 - Fault Handling Enhancements: Refined fault detection and handling mechanisms for stuck elevators (FT - Floor Timer Fault), malfunctioning doors (DOF - Door Open Fault), and normal operations (NF - No Fault condition), integrating these features with the GUI for immediate feedback.
 
+## Final Project Demo
+
+- A demo for our project running is available on YouTube at this link: https://youtu.be/g5FIm6vSXhc
 
 ## Components and Files
 
