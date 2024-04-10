@@ -1,6 +1,19 @@
 import java.io.IOException;
 import java.net.*;
 
+/**
+ * The MainSystem class facilitates communication between the elevator system's components
+ * via network sockets. It provides utilities for sending and receiving datagram packets,
+ * along with utilities for logging packet data.
+ *
+ * @version 1.0
+ * @since 2024-04-10
+ * @author Humam Khalil
+ * @author Imad Mohamed
+ * @author Michael Rochefort
+ * @author Kieran Rourke
+ * @author Kyle Taticek
+ */
 public class MainSystem {
 
 	 private DataPacket schedulerAndFloorData = null;
@@ -26,11 +39,12 @@ public class MainSystem {
 
 	 public static int buffer_size = 100;
 
-	 /**
-	  * Method to allow scheduler and elevator to get their data packet
-	  *
-	  * @return DataPacket object
-	  */
+	/**
+	 * Waits for and returns the next DataPacket intended for the elevator from the scheduler.
+	 * If no packet is available, it waits until one is set.
+	 *
+	 * @return The next DataPacket from the scheduler intended for the elevator.
+	 */
 	 public synchronized DataPacket getSchedulerAndElevatorData() {
 		  while (schedulerAndElevatorData == null) {
 				try {
@@ -45,6 +59,15 @@ public class MainSystem {
 		  return finalPacket;
 	 }
 
+	/**
+	 * Sends a request from one system component to another and waits for a response.
+	 * This method encapsulates the process of sending a DatagramPacket and receiving
+	 * the response in another DatagramPacket.
+	 *
+	 * @param request The DatagramPacket containing the request.
+	 * @param response The DatagramPacket to store the response.
+	 * @param elevatorId The ID of the elevator sending the request, or -1 for requests not from elevators.
+	 */
 	 public static void rpc_send(DatagramPacket request, DatagramPacket response, int elevatorId) {
 		  // Send the datagram packet to the client via the send socket.
 		  try {
@@ -55,12 +78,6 @@ public class MainSystem {
 					 System.out.println("Sending get request to Scheduler on port " + request.getPort());
 					 tempSendSocket.send(request);
 				}
-
-//				try {
-//					 Thread.sleep(500);
-//				} catch (InterruptedException e) {
-//					 throw new RuntimeException(e);
-//				}
 
 
 				System.out.println("Receiving from host port " + response.getPort() + "\n");
@@ -78,9 +95,16 @@ public class MainSystem {
 		  }
 	 }
 
-	 public synchronized static void sendDataToSchedulerFromElevator(DatagramPacket request, DatagramSocket socket, int eleavtorId) {
+	/**
+	 * Sends a DatagramPacket from an elevator to the scheduler.
+	 *
+	 * @param request The DatagramPacket to send.
+	 * @param socket The DatagramSocket to use for sending the packet.
+	 * @param elevatorId The ID of the elevator sending the packet.
+	 */
+	 public synchronized static void sendDataToSchedulerFromElevator(DatagramPacket request, DatagramSocket socket, int elevatorId) {
 		  try {
-				System.out.println("Elevator " + eleavtorId + " sending get request to Scheduler on port " + request.getPort() +
+				System.out.println("Elevator " + elevatorId + " sending get request to Scheduler on port " + request.getPort() +
 						  "\n");
 				socket.send(request);
 				try {
@@ -126,6 +150,11 @@ public class MainSystem {
 
 	 }
 
+	/**
+	 * Waits for an acknowledgment packet to be received on the provided DatagramSocket.
+	 *
+	 * @param socket The DatagramSocket to listen on for the acknowledgment packet.
+	 */
 	 public static void waitForAck(DatagramSocket socket) {
 		  DatagramPacket receivePacket = new DatagramPacket(new byte[MainSystem.buffer_size], MainSystem.buffer_size);
 		  try {
@@ -137,12 +166,22 @@ public class MainSystem {
 
 	 }
 
+	/**
+	 * Sets the DataPacket intended for the elevator, waking up any threads waiting for this data.
+	 *
+	 * @param packet The DataPacket to be sent to the elevator.
+	 */
 	 public synchronized void setSchedulerAndElevatorData(DataPacket packet) {
 		  this.schedulerAndElevatorData = packet;
 		  // Notify any waiting threads that new data is available.
 		  notifyAll();
 	 }
 
+	/**
+	 * Utility method to print packet data.
+	 *
+	 * @param packet The DataPacket to be printed.
+	 */
 	 private synchronized static void printPacketData(DatagramPacket packet) {
 		  //Output data
 		  System.out.print("Containing... as a string: ");
@@ -154,6 +193,11 @@ public class MainSystem {
 		  System.out.println("\n");
 	 }
 
+	/**
+	 * Utility method to print received packet data.
+	 *
+	 * @param packet The DataPacket to be printed.
+	 */
 	 public synchronized static void printReceivePacketData(DatagramPacket packet) {
 		  // Process the received datagram.
 		  System.out.println("Packet received:");
@@ -164,6 +208,11 @@ public class MainSystem {
 		  printPacketData(packet);
 	 }
 
+	/**
+	 * Utility method to print sent packet data.
+	 *
+	 * @param packet The DataPacket to be printed.
+	 */
 	 public synchronized static void printSendPacketData(DatagramPacket packet) {
 		  System.out.println("Sending packet:");
 		  System.out.println("To host: " + packet.getAddress());
@@ -173,6 +222,4 @@ public class MainSystem {
 		  System.out.println("Current time is " + System.currentTimeMillis() + "\n");
 		  printPacketData(packet);
 	 }
-
-
 }

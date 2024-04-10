@@ -11,6 +11,18 @@ import java.net.DatagramSocket;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests for the Floor class.
+ * These tests focus on ensuring that the Floor class correctly processes input data and handles data packets.
+ *
+ * @version 1.0
+ * @since 2024-04-10
+ * @author Humam Khalil
+ * @author Imad Mohamed
+ * @author Michael Rochefort
+ * @author Kieran Rourke
+ * @author Kyle Taticek
+ */
 @ExtendWith(MockitoExtension.class)
 class FloorTest {
 
@@ -25,7 +37,11 @@ class FloorTest {
         floor = new Floor();
     }
 
-    //testing valid input is processed correctly using a mock text
+    /**
+     * Test to verify that valid input data is processed correctly into a DataPacket object.
+     * This test ensures that the processStringIntoDataPacket method in the Floor class correctly parses
+     * valid input data and constructs a DataPacket object with the expected attributes.
+     */
     @Test
     void processInputData_ValidInput() {
         String inputData = "10:00 5 UP 3 NF";
@@ -40,7 +56,11 @@ class FloorTest {
         assertEquals(expected.getCarButton(), result.getCarButton());
     }
 
-    //testing invalid input is processed correctly
+    /**
+     * Test to verify that invalid input data is processed correctly into a null DataPacket object.
+     * This test ensures that the processStringIntoDataPacket method in the Floor class returns null
+     * when the input data is invalid and cannot be parsed into a DataPacket object.
+     */
     @Test
     void processInputData_InvalidInput() {
         String inputData = "Invalid data";
@@ -48,7 +68,11 @@ class FloorTest {
         assertNull(result);
     }
 
-    //testing valid input
+    /**
+     * Test to verify that a valid data packet is correctly handled by the Floor class.
+     * This test ensures that the Floor class processes a valid data packet and correctly
+     * constructs it, validating that the actual result matches the expected result.
+     */
     @Test
     void handleDataPacket_ValidData() {
         String inputData = "10:00 5 UP 3 NF";

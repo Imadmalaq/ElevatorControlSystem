@@ -1,7 +1,19 @@
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-
+/**
+ * The Elevator class simulates the behavior of an elevator within a building,
+ * communicating with a central scheduler to receive floor requests and notify of its actions.
+ * It operates as a thread to simulate real-time elevator movements and state changes.
+ *
+ * @version 1.0
+ * @since 2024-04-10
+ * @author Humam Khalil
+ * @author Imad Mohamed
+ * @author Michael Rochefort
+ * @author Kieran Rourke
+ * @author Kyle Taticek
+ */
 public class Elevator extends Thread {
 
     private int id;
@@ -17,32 +29,53 @@ public class Elevator extends Thread {
 
     private boolean hasReachedInitialFloor = false;
 
+    /**
+     * Enum representing the various states an elevator can be in during its operation.
+     */
     public enum ElevatorState {
         IDLE, MOVING, NOTIFY_SCHEDULER, DOOR_OPENING, DOOR_CLOSING, FAULT
     }
 
+    /**
+     * Constructs a new Elevator instance, initially setting its state to IDLE.
+     */
     public Elevator() {
         this.currentState = ElevatorState.IDLE;
     }
 
+    /**
+     * Enables test mode for the elevator, preventing it from entering the main operational loop.
+     */
     public void enableTestMode() {
         this.testModeEnabled = true;
     }
 
+    /**
+     * Gets the current state of the elevator.
+     * @return The current ElevatorState.
+     */
     public ElevatorState getCurrentState() {
         return currentState;
     }
 
+    /**
+     * Sets the current state of the elevator.
+     * @param state The new state to set.
+     */
     public void setCurrentState(ElevatorState state) {
         this.currentState = state;
     }
 
+    /**
+     * Sets the identifier for the elevator.
+     * @param id The ID to set for the elevator.
+     */
     public void setId(int id) {
         this.id = id;
     }
 
     /**
-     * NEW ADDED CODE FOR ITERATION 3 BELOW
+     * Communicates with the scheduler to receive data packets indicating floor requests.
      */
     public void getDataFromScheduler() {
         try {
@@ -83,6 +116,10 @@ public class Elevator extends Thread {
         }
     }
 
+    /**
+     * Sends data to the scheduler, typically to notify it of state changes or completed tasks.
+     * @param data The string data to send to the scheduler.
+     */
     public void sendDataToScheduler(String data) {
         try {
             // Serialize the DataPacket object into a byte array - Need some adjustments
@@ -121,36 +158,57 @@ public class Elevator extends Thread {
         sendDataToScheduler(notificationPacket.toString());
     }
 
-    // Method to set the current data packet for testing purposes
+    /**
+     * Sets the current data packet for testing or operational purposes.
+     * @param packet The DataPacket to set as the current data packet.
+     */
     public void setCurrentDataPacket(DataPacket packet) {
         this.currentDataPacket = packet;
     }
 
-    // Method to get the current data packet for assertions in tests
+    /**
+     * Retrieves the current data packet the elevator is processing.
+     * @return The current DataPacket.
+     */
     public DataPacket getCurrentDataPacket() {
         return this.currentDataPacket;
     }
 
-    // Method to directly set the elevator's current floor for testing
+    /**
+     * Directly sets the elevator's current floor, used for testing or initialization.
+     * @param floor The floor number to set as the current floor.
+     */
     public void setCurrentFloor(int floor) {
         this.currentFloor = floor;
     }
 
-    // Method to get the current floor for assertions in tests
+    /**
+     * Retrieves the current floor of the elevator.
+     * @return The current floor number.
+     */
     public int getCurrentFloor() {
         return this.currentFloor;
     }
 
-    // Method to set the target floor directly for testing purposes
+    /**
+     * Sets the target floor for the elevator to move to.
+     * @param floor The target floor number.
+     */
     public void setTargetFloor(int floor) {
         this.targetFloor = floor;
     }
 
-    // Method to get the target floor for assertions in tests
+    /**
+     * Retrieves the target floor number.
+     * @return The target floor number.
+     */
     public int getTargetFloor() {
         return this.targetFloor;
     }
 
+    /**
+     * Handles elevator moving up floors.
+     */
     private void handleIncrementingFloor() {
         if (hasReachedInitialFloor) {
             if (direction.equals("Up")) {
@@ -167,7 +225,9 @@ public class Elevator extends Thread {
         }
     }
 
-    //Below is the state machine inside the run method
+    /**
+     * The main run loop for the elevator, handling its state machine and responding to scheduler requests.
+     */
     @Override
     public void run() {
         if (testModeEnabled) {
@@ -264,6 +324,10 @@ public class Elevator extends Thread {
         }
     }
 
+    /**
+     * Handles elevator faults based on the type of fault encountered.
+     * @param faultType The type of fault to handle.
+     */
     private void handleFault(String faultType) {
         switch (faultType) {
             case "FT": // Floor Timer Fault (Hard Fault)
@@ -293,6 +357,10 @@ public class Elevator extends Thread {
         }
     }
 
+    /**
+     * The main method to start elevator simulation.
+     * @param args Command line arguments (not used).
+     */
     public static void main (String[] args) {
         Elevator elevator0 =  new Elevator();
         elevator0.setId(0);

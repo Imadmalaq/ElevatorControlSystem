@@ -6,6 +6,20 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * The Scheduler class manages the distribution and handling of floor requests to elevators.
+ * It communicates with both floors and elevators to efficiently assign elevator cars based on
+ * current requests and elevator states. It also handles fault conditions and can operate in
+ * a test mode for simulation purposes.
+ *
+ * @version 1.0
+ * @since 2024-04-10
+ * @author Humam Khalil
+ * @author Imad Mohamed
+ * @author Michael Rochefort
+ * @author Kieran Rourke
+ * @author Kyle Taticek
+ */
 public class Scheduler implements Runnable {
 
     private DataPacket currentDataPacket; // This is the data packet that the scheduler is currently working on
@@ -34,24 +48,42 @@ public class Scheduler implements Runnable {
     }
 
 
+    /**
+     * Enum representing the various states the scheduler can be in.
+     */
     public enum SchedulerState {
         WAITING_FOR_REQUEST, FLOOR_REQUEST_RECEIVED, SENDING_REQUEST_TO_ELEVATOR, WAITING_FOR_ELEVATOR_RESPONSE, PROCESSING_ELEVATOR_RESPONSE, HANDLE_CRITICAL_FAULT
     }
 
+    /**
+     * Constructs a Scheduler with the specified number of elevators.
+     * @param numElevators The total number of elevators managed by the scheduler.
+     */
     public Scheduler(int numElevators) {
         this.currentState = SchedulerState.WAITING_FOR_REQUEST;
         elevatorData = new HashMap<>();
         this.numElevators = numElevators;
     }
 
+    /**
+     * Enables test mode. When enabled, the scheduler will not enter its main loop.
+     */
     public void enableTestMode() {
         this.testModeEnabled = true;
     }
 
+    /**
+     * Retrieves the current data packet being processed.
+     * @return The current DataPacket.
+     */
     public DataPacket getCurrentDataPacket(){
         return currentDataPacket;
     }
 
+    /**
+     * Sets the data packet to be processed.
+     * @param p The DataPacket to set.
+     */
     public void setDataPacket(DataPacket p){
         currentDataPacket = p;
     }
@@ -147,6 +179,11 @@ public class Scheduler implements Runnable {
 
     }
 
+    /**
+     * Sends the given data as a UDP packet to the specified elevator.
+     * @param data The string data to send.
+     * @param elevatorID The ID of the elevator to send the data to.
+     */
     public void sendDataToElevator(String data, int elevatorID) {
         try {
             // Serialize the DataPacket object into a byte array
@@ -167,6 +204,11 @@ public class Scheduler implements Runnable {
         }
     }
 
+    /**
+     * Retrieves data from an elevator via UDP packets, updating the current data packet
+     * based on the information received.
+     * @return True if the elevator is idle, false otherwise.
+     */
     public void getDataFromFloor(){
         DatagramSocket floorSocket = null;
         try {
@@ -201,6 +243,10 @@ public class Scheduler implements Runnable {
         MainSystem.sendAcknowledgment(packet);
     }
 
+    /**
+     * Sends the given data as a UDP packet to the floor system.
+     * @param data The string data to send.
+     */
     public void sendDataToFloor(String data) {
         // Serialize the DataPacket object into a byte array
         byte[] packetData = new byte[MainSystem.buffer_size];
@@ -222,20 +268,32 @@ public class Scheduler implements Runnable {
         }
     }
 
+    /**
+     * Enables the flag to stop the scheduler after one cycle. Useful for testing.
+     */
     public void enableStopAfterOneCycle() {
         this.stopAfterOneCycle = true;
     }
 
+    /**
+     * Retrieves the current state of the scheduler.
+     * @return The current SchedulerState.
+     */
     public SchedulerState getCurrentState() {
         return currentState;
     }
 
+    /**
+     * Sets the current state of the scheduler to the given state.
+     * @param state The new state to set.
+     */
     public void setCurrentState(SchedulerState state) {
         this.currentState = state;
     }
 
     /**
-     * Gets the data from the floor and sets the currentDataPacket
+     * Parses the data received from a floor into relevant fields for further processing.
+     * @param data The string data received from the floor.
      */
     public void parseFloorData (String data) {
         currentDataPacket = Floor.processStringIntoDataPacket(data);
@@ -245,6 +303,11 @@ public class Scheduler implements Runnable {
         this.direction = currentDataPacket.getDirection();
     }
 
+    /**
+     * Selects an elevator based on its proximity to the starting floor.
+     * @param startingFloor The floor from which the elevator request was made.
+     * @return The ID of the selected elevator, or -1 if no elevator is available.
+     */
     public int pickElevator (int startingFloor){
          ArrayList<ElevatorDataPacket> values = new ArrayList<>(elevatorData.values());
 
@@ -271,6 +334,9 @@ public class Scheduler implements Runnable {
 
     }
 
+    /**
+     * The main run loop of the scheduler, handling state transitions and operations based on the current state.
+     */
     @Override
     public void run() {
         if (testModeEnabled) {
@@ -378,6 +444,11 @@ public class Scheduler implements Runnable {
         }
     }
 
+    /**
+     * Handles an elevator fault by logging it and taking necessary actions based on the type of fault.
+     * @param elevatorId The ID of the elevator reporting the fault.
+     * @param faultType The type of fault reported.
+     */
     private void handleElevatorFault(int elevatorId, String faultType) {
         // This only Log the fault for now
         String outputData = "Elevator " + elevatorId + " reported a fault: " + faultType + "\n";
@@ -411,6 +482,10 @@ public class Scheduler implements Runnable {
         elevatorFaults.put(elevatorId, faultType);
     }
 
+    /**
+     * The entry point of the scheduler program.
+     * @param args The command-line arguments.
+     */
     public static void main(String[] args) {
         Scheduler scheduler = new Scheduler(4);
         scheduler.setVerbose(true);

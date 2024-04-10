@@ -6,6 +6,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests for the Scheduler class.
+ * Uses Mockito to mock dependencies and ensure that the Scheduler class functions as expected
+ * under various scenarios, especially focusing on interactions with the MainSystem and handling
+ * of DataPacket objects.
+ *
+ * @version 1.0
+ * @since 2024-04-10
+ * @author Humam Khalil
+ * @author Imad Mohamed
+ * @author Michael Rochefort
+ * @author Kieran Rourke
+ * @author Kyle Taticek
+ */
 @ExtendWith(MockitoExtension.class)
 class SchedulerTest {
 
@@ -14,6 +28,10 @@ class SchedulerTest {
     @Mock
     private MainSystem mainSystem;
 
+    /**
+     * Set up common test objects and configurations.
+     * Here, we instantiate a Scheduler with a preset number of elevators for all tests.
+     */
     @BeforeEach
     void setUp() {
         // Manually create an instance of Scheduler with a mock or preset number of elevators
@@ -21,7 +39,11 @@ class SchedulerTest {
 
     }
 
-    //A simple test that create a packet and checks that the elevators data is correct with it
+    /**
+     * Test to verify that the scheduler correctly receives data from an elevator.
+     * This test simulates the reception of a DataPacket from an elevator and checks
+     * that the scheduler's current data packet matches the expected packet.
+     */
     @Test
     void getDataFromElevator_simplified() {
         DataPacket expectedPacket = new DataPacket("10:30", "2", "UP", "4", "NF");
@@ -30,7 +52,11 @@ class SchedulerTest {
         assertEquals(expectedPacket, resultPacket, "The data packet should match the expected packet.");
     }
 
-    //Test to ensure that data can be sent correctly to the elevator
+    /**
+     * Test to ensure that the scheduler can send data correctly to an elevator.
+     * This test simulates sending a DataPacket to an elevator, focusing on the method's ability
+     * to execute without errors.
+     */
     @Test
     void sendDataToElevator() {
         DataPacket packetToSend = new DataPacket("11:00", "1", "UP", "3", "NF");
@@ -39,7 +65,11 @@ class SchedulerTest {
 
     }
 
-    //test for getting data from the floor class using mock packets behaviour
+    /**
+     * Test to verify that the scheduler correctly receives data from the floor.
+     * This test simulates the reception of a DataPacket from a floor and checks
+     * that the scheduler's current data packet matches the expected packet.
+     */
     @Test
     void getDataFromFloor_simplified() {
         DataPacket expectedPacket = new DataPacket("09:00", "1", "DOWN", "0", "NF");
@@ -48,7 +78,11 @@ class SchedulerTest {
         assertEquals(expectedPacket, resultPacket, "The data packet should match the expected packet.");
     }
 
-    //testing that the data can be sent properly
+    /**
+     * Test to ensure that the scheduler can send data correctly to the floor.
+     * This test simulates sending a DataPacket to the floor, focusing on the method's ability
+     * to execute without errors.
+     */
     @Test
     void sendDataToFloor() {
         DataPacket packetToSend = new DataPacket("12:00", "5", "DOWN", "1", "NF");

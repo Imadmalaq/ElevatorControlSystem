@@ -8,14 +8,30 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.Scanner;
 
+/**
+ * The Floor class simulates the floor operations in an elevator system.
+ * It reads floor requests from an input file, converts each line of input into a data packet,
+ * and communicates with the scheduler to handle these requests.
+ *
+ * @version 1.0
+ * @since 2024-04-10
+ * @author Humam Khalil
+ * @author Imad Mohamed
+ * @author Michael Rochefort
+ * @author Kieran Rourke
+ * @author Kyle Taticek
+ */
 public class Floor implements Runnable{
 
-
+    /**
+     * Constructs a new instance of the Floor class.
+     */
     public Floor() {
     }
 
     /**
-     * Reads the input File and sets the currentDataPacket
+     * Reads floor request data from an input file and processes each line into a DataPacket.
+     * Each DataPacket is then immediately handled by sending it to the scheduler.
      */
     public void readInputFile() {
         try {
@@ -38,9 +54,10 @@ public class Floor implements Runnable{
     }
 
     /**
-     * Processes the input data and creates a DataPacket object
-     * @param data - One line from the input file
-     * @return DataPacket object
+     * Processes a line of input from the file into a DataPacket object if the input is valid.
+     *
+     * @param data A line of input from the input file representing a floor request.
+     * @return A DataPacket object representing the request; null if the input is invalid.
      */
     public static DataPacket processStringIntoDataPacket(String data){
         String[] parts = data.split(" ");
@@ -59,6 +76,12 @@ public class Floor implements Runnable{
         return new DataPacket(time, floor, direction, carButton, faultType);
     }
 
+    /**
+     * Validates the input string to ensure it can be correctly parsed into a DataPacket.
+     *
+     * @param data The input string to validate.
+     * @return true if the input can be parsed into a DataPacket; false otherwise.
+     */
     public static boolean isValidDataPacket(String data) {
         String[] parts = data.split(" ");
         try {
@@ -69,6 +92,11 @@ public class Floor implements Runnable{
         return parts.length == 5;
     }
 
+    /**
+     * Handles a valid DataPacket by sending it to the scheduler and awaiting a response.
+     *
+     * @param dataPacket The DataPacket to handle.
+     */
     public void handleDataPacket(DataPacket dataPacket) {
         System.out.println("Handling Data Packet with Fault Type: " + dataPacket.getFaultType());
         DatagramSocket tempSendReceiveSocket = null;
@@ -87,6 +115,12 @@ public class Floor implements Runnable{
         getDataFromScheduler();
     }
 
+    /**
+     * Sends a DataPacket to the scheduler using a DatagramSocket.
+     *
+     * @param packet         The DataPacket to send.
+     * @param tempSendSocket The DatagramSocket to use for sending the packet.
+     */
     public void sendDataToScheduler(DataPacket packet, DatagramSocket tempSendSocket) {
         byte[] message = new byte[MainSystem.buffer_size];
         message = packet.toString().getBytes();
@@ -100,6 +134,9 @@ public class Floor implements Runnable{
         }
     }
 
+    /**
+     * Requests and receives data from the scheduler, typically to confirm that a request has been processed.
+     */
     public void getDataFromScheduler () {
         try {
             // Prepare a buffer to store incoming data
@@ -125,12 +162,20 @@ public class Floor implements Runnable{
         }
     }
 
+    /**
+     * The main run method of the Floor class, starting the process of reading and handling input from the input file.
+     */
     @Override
     public void run() {
         readInputFile();
         System.exit(0);
     }
 
+    /**
+     * The main entry point for the Floor class, creating a new instance and starting it in a new thread.
+     *
+     * @param args Command line arguments (not used).
+     */
     public static void main(String[] args) {
         Floor floor = new Floor();
         Thread t = new Thread(floor);
